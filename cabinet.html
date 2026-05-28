@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Особистий кабінет | AVTOZVUK</title>
+    
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <div class="cabinet-wrapper">
+        <h2 class="cabinet-title">Особистий кабінет</h2>
+        
+        <div id="message"></div>
+
+        <div class="info-row">
+            <span>Ім'я</span>
+            <input type="text" id="cabFirstName" disabled>
+        </div>
+        <div class="info-row">
+            <span>Прізвище</span>
+            <input type="text" id="cabLastName" disabled>
+        </div>
+        
+        <div class="info-row">
+            <span>Телефон</span>
+            <div class="input-group">
+                <input type="tel" id="cabPhone" disabled>
+                <button type="button" class="btn-edit" onclick="enableEdit('cabPhone')">✏️ Змінити</button>
+            </div>
+        </div>
+        <div class="info-row">
+            <span>Email (Логін)</span>
+            <div class="input-group">
+                <input type="email" id="cabEmail" disabled>
+                <button type="button" class="btn-edit" onclick="enableEdit('cabEmail')">✏️ Змінити</button>
+            </div>
+        </div>
+        <div class="info-row">
+            <span>Новий пароль</span>
+            <div class="input-group">
+                <input type="password" id="cabNewPassword" placeholder="Введіть новий пароль">
+            </div>
+        </div>
+        <a href="admin.html" id="crmLinkBtn" class="btn-crm" style="display: none;">📊 Перейти до CRM (Замовлення)</a>
+        <div class="cabinet-actions">
+            <button id="saveBtn" class="btn-save">Зберегти зміни</button>
+            <div class="row-buttons">
+                <a href="main.html" class="btn-back">⬅ На головну</a>
+                <button id="logoutBtn" class="btn-logout">Вийти</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <h3>Підтвердження змін</h3>
+            <p>Щоб зберегти нові дані, введіть свій поточний пароль:</p>
+            <input type="password" id="modalConfirmPassword" placeholder="Поточний пароль">
+            <div id="modalError" style="color: #ff4d4d; margin-bottom: 10px; font-size: 14px;"></div>
+            <div class="modal-buttons">
+                <button id="cancelModalBtn" class="btn-logout">Скасувати</button>
+                <button id="confirmModalBtn" class="btn-save">Підтвердити</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="cabinet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

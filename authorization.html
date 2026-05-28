@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Авторизація - Avtozvuk Zhytomyr</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="container header-inner">
+            <div class="logo"><a href="main.html">AVTOZVUK<br><span>ZHYTOMYR</span></a></div>
+            
+            <button class="mobile-menu-btn" id="burgerBtn">☰</button>
+
+            <div class="header-nav-group" id="mobileNav">
+                <ul class="nav-menu">
+                    <li><a href="main.html">Головна</a></li>
+                    <li><a href="catalog.html">Каталог</a></li>
+                    <li><a href="delivery.html">Доставка та оплата</a></li>
+                    <li><a href="returns.html">Повернення та обмін</a></li>
+                    <li><a href="contacts.html">Контакти</a></li>
+                </ul>
+                <div class="header-actions">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Пошук...">
+                        <button id="searchBtn">🔍</button>
+                    </div>
+                    <div class="profile-container">
+                        <a href="cabinet.html" class="profile-link">
+                            <div class="profile-icon">👤</div>
+                        </a>
+                    </div>
+                    <a href="cart.html" class="cart-btn">
+                        🛒 <span id="cartCount">0</span>
+                    </a>
+                    <strong>+38 067 123 4567</strong>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container page-content">
+        <div class="auth-wrapper">
+            <div class="auth-box">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="tabLogin">Вхід</button>
+                    <button class="auth-tab" id="tabRegister">Реєстрація</button>
+                </div>
+
+                <form id="loginForm" class="auth-form">
+                    <h3>З поверненням!</h3>
+                    <input type="email" id="loginEmail" placeholder="Ваш Email" required>
+                    <input type="password" id="loginPassword" placeholder="Пароль" required>
+                    <div id="loginMessage" class="auth-message"></div>
+                    <button type="submit" class="btn-buy">Увійти</button>
+                </form>
+
+                <form id="registerForm" class="auth-form" style="display: none;">
+                    <h3>Новий користувач</h3>
+    
+                    <input type="text" id="regFirstName" placeholder="Ім'я" required>
+                    <input type="text" id="regLastName" placeholder="Прізвище" required>
+                    <input type="tel" id="regPhone" value="+380 " placeholder="+380 (__) ___-__-__" maxlength="19" required>
+    
+                    <input type="email" id="regEmail" placeholder="Ваш Email" required>
+                    <input type="password" id="regPassword" placeholder="Придумайте пароль" required>
+    
+                    <div id="regMessage" class="auth-message"></div>
+                    <button type="submit" class="btn-buy">Зареєструватися</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

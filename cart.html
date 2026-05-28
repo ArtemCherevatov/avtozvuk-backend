@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Мій кошик - Avtozvuk</title>
+    <link rel="stylesheet" href="style.css?v=1.1">  
+</head>
+<body>
+    <header>
+        <div class="container header-inner">
+            <div class="logo">AVTOZVUK<br><span>ZHYTOMYR</span></div>
+            
+            <!-- Кнопка-гамбургер (буде видима лише на телефоні) -->
+            <button class="mobile-menu-btn" id="burgerBtn">☰</button>
+
+            <!-- Обгортка меню, яка буде виїжджати -->
+            <div class="header-nav-group" id="mobileNav">
+                <ul class="nav-menu">
+                    <li><a href="main.html">Головна</a></li>
+                    <li><a href="catalog.html">Каталог</a></li>
+                    <li><a href="delivery.html">Доставка та оплата</a></li>
+                    <li><a href="returns.html">Повернення та обмін</a></li>
+                    <li><a href="contacts.html">Контакти</a></li>
+                </ul>
+
+                <div class="header-actions">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Пошук...">
+                        <button id="searchBtn">🔍</button>
+                    </div>
+                    
+                    <div class="profile-container" id="profileDropdown">
+                        <button class="profile-link" id="profileBtn" style="background: none; border: none; cursor: pointer;">
+                            <div class="profile-icon">👤</div>
+                        </button>
+                        
+                        <ul class="dropdown-menu" id="profileMenu">
+                            <li><a href="cabinet.html">Мій кабінет</a></li>
+                            <li><a href="my-orders.html">Мої замовлення</a></li>
+                            <li><a href="#" id="dropdownLogoutBtn" style="color: #ef4444;">Вийти</a></li>
+                        </ul>
+                    </div>
+                    <a href="cart.html" class="cart-btn">
+                        🛒 <span id="cartCount">0</span>
+                    </a>
+                    
+                    <a href="tel:+380671234567" class="phone-number"><strong>+38 (067) 123-45-67</strong></a>
+                </div>
+            </div>
+            
+        </div>
+    </header>
+
+
+    <main class="cart-container">
+        <h1>🛒 Ваш кошик</h1>
+        <div id="cartItemsContainer">
+            <div class="cart-loading">Завантаження...</div>
+        </div>
+        
+        <div class="cart-total-box" id="cartTotalBox" style="display: none;">
+            <h2>Разом до сплати: <span id="cartTotalPrice" class="total-price-text">0</span> грн</h2>
+            <button class="btn-checkout" id="openCheckoutBtn">ОФОРМИТИ ЗАМОВЛЕННЯ</button>
+        </div>
+    </main>
+    <div id="checkoutModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModalBtn">&times;</span>
+            <h2>Оформлення замовлення</h2>
+            <form id="checkoutForm">
+                <input type="text" id="clientName" class="checkout-input" placeholder="Ваше ім'я" required>
+                <input type="text" id="clientLastname" class="checkout-input" placeholder="Ваше Прізвище" required>
+                <input type="tel" id="clientPhone" class="checkout-input" placeholder="Номер телефону" required>
+                <textarea id="clientComment" class="checkout-input" placeholder="Коментар або місто доставки" rows="3"></textarea>
+                <button type="submit" class="btn-submit-order">ПІДТВЕРДИТИ</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Повернення та обмін - Avtozvuk Zhytomyr</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="container header-inner">
+            <div class="logo"><a href="index.html">AVTOZVUK<br><span>ZHYTOMYR</span></a></div>
+            
+            <button class="mobile-menu-btn" id="burgerBtn">☰</button>
+
+            <div class="header-nav-group" id="mobileNav">
+                <ul class="nav-menu">
+                    <li><a href="main.html">Головна</a></li>
+                    <li><a href="catalog.html">Каталог</a></li>
+                    <li><a href="delivery.html">Доставка та оплата</a></li>
+                    <li><a href="returns.html">Повернення та обмін</a></li>
+                    <li><a href="contacts.html">Контакти</a></li>
+                </ul>
+                <div class="header-actions">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Пошук...">
+                        <button id="searchBtn">🔍</button>
+                    </div>
+                    <div class="profile-container" id="profileDropdown">
+                        <button class="profile-link" id="profileBtn" style="background: none; border: none; cursor: pointer;">
+                            <div class="profile-icon">👤</div>
+                        </button>
+                        
+                        <ul class="dropdown-menu" id="profileMenu">
+                            <li><a href="cabinet.html">Мій кабінет</a></li>
+                            <li><a href="my-orders.html">Мої замовлення</a></li>
+                            <li><a href="#" id="dropdownLogoutBtn" style="color: #ef4444;">Вийти</a></li>
+                        </ul>
+                    </div>
+                    <a href="cart.html" class="cart-btn">
+                        🛒 <span id="cartCount">0</span>
+                    </a>
+                    <strong>+38 067 123 4567</strong>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container page-content">
+        <h1 class="page-title">Повернення та обмін</h1>
+
+        <section class="info-section text-box">
+            <h3>Умови повернення товару</h3>
+            <p>Відповідно до Закону України «Про захист прав споживачів», ви маєте право повернути або обміняти товар протягом <strong>14 днів</strong> з моменту покупки.</p>
+            
+            <br>
+            <h3>Щоб ми могли прийняти товар, переконайтеся, що:</h3>
+            <ul>
+                <li>Товар не був у вжитку і не має слідів використання (подряпин, відколів, потертостей, слідів монтажу).</li>
+                <li>Повністю збережена фірмова упаковка та всі її компоненти.</li>
+                <li>Збережена повна комплектація товару (включаючи кабелі, інструкції, гарантійний талон).</li>
+                <li>У вас є товарний чек або документ, що підтверджує оплату.</li>
+            </ul>
+
+            <br>
+            <p><em>* Зверніть увагу: товари, що були пошкоджені під час самостійного або некваліфікованого монтажу (наприклад, згорілі мікросхеми через неправильне підключення), обміну та поверненню не підлягають і передаються в сервісний центр на діагностику.</em></p>
+        </section>
+
+        <section class="info-section">
+            <h2 class="section-title">Як зробити повернення?</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">📞</div>
+                    <h3>Крок 1. Зв'яжіться з нами</h3>
+                    <p>Зателефонуйте нашому менеджеру за номером +38 067 123 4567 або напишіть у месенджери, щоб попередити про повернення та узгодити деталі.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">📦</div>
+                    <h3>Крок 2. Відправка товару</h3>
+                    <p>Надійно упакуйте товар і відправте його нам "Новою Поштою" (реквізити для відправки надасть менеджер). Послуги доставки оплачує покупець.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">💳</div>
+                    <h3>Крок 3. Повернення коштів</h3>
+                    <p>Після отримання товару та перевірки його стану нашими майстрами (зазвичай 1-3 робочі дні), ми повернемо кошти на вашу банківську картку.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container footer-inner">
+            <div>
+                <div class="logo">AVTOZVUK<br><span>ZHYTOMYR</span></div>
+            </div>
+            <div>
+                <h3>Адреса</h3>
+                <p>Житомир, вул. Михайлівська, 10</p>
+                <p>Телефон: +38 067 123 4567</p>
+            </div>
+            <div>
+                <h3>Соцмережі</h3>
+                <p>Facebook | Instagram | Telegram</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контакти - Avtozvuk ZT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="container header-inner">
+            <div class="logo">AVTOZVUK<br><span>ZHYTOMYR</span></div>
+            
+            <!-- Кнопка-гамбургер (буде видима лише на телефоні) -->
+            <button class="mobile-menu-btn" id="burgerBtn">☰</button>
+
+            <!-- Обгортка меню, яка буде виїжджати -->
+            <div class="header-nav-group" id="mobileNav">
+                <ul class="nav-menu">
+                    <li><a href="main.html">Головна</a></li>
+                    <li><a href="catalog.html">Каталог</a></li>
+                    <li><a href="delivery.html">Доставка та оплата</a></li>
+                    <li><a href="returns.html">Повернення та обмін</a></li>
+                    <li><a href="contacts.html">Контакти</a></li>
+                </ul>
+
+                <div class="header-actions">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Пошук...">
+                        <button id="searchBtn">🔍</button>
+                    </div>
+                    
+                    <div class="profile-container" id="profileDropdown">
+                        <button class="profile-link" id="profileBtn" style="background: none; border: none; cursor: pointer;">
+                            <div class="profile-icon">👤</div>
+                        </button>
+                        
+                        <ul class="dropdown-menu" id="profileMenu">
+                            <li><a href="cabinet.html">Мій кабінет</a></li>
+                            <li><a href="my-orders.html">Мої замовлення</a></li>
+                            <li><a href="#" id="dropdownLogoutBtn" style="color: #ef4444;">Вийти</a></li>
+                        </ul>
+                    </div>
+                    <a href="cart.html" class="cart-btn">
+                        🛒 <span id="cartCount">0</span>
+                    </a>
+                    
+                    <a href="tel:+380671234567" class="phone-number"><strong>+38 (067) 123-45-67</strong></a>
+                </div>
+            </div>
+            
+        </div>
+    </header>
+
+    <main class="container" style="padding: 50px 0;">
+        <h1 class="section-title">КОНТАКТИ</h1>
+        
+        <div class="contacts-wrapper" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px;">
+            <div class="contact-info">
+                <p><strong>Телефон:</strong> <a href="tel:+380671234567">+38 (067) 123-45-67</a></p>
+                <p><strong>Telegram:</strong> <a href="tel:+380671234567">+38 (067) 123-45-67</a></p>
+                <p><strong>Viber:</strong> <a href="tel:+380671234567">+38 (067) 123-45-67</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

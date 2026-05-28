@@ -1,0 +1,16 @@
+Крок 3: Як керувати сервером (Корисні команди)
+Оскільки сервер тепер працює невидимо, ось команди, які варто запам'ятати (їх можна вводити в будь-якому новому вікні термінала):
+
+pm2 list — показує таблицю зі всіма вашими запущеними серверами та їхнім статусом.
+
+pm2 stop avto-server — зупиняє роботу сервера.
+
+pm2 restart avto-server — перезапускає сервер (дуже корисно, коли ви змінили щось у файлі server.js і треба застосувати зміни).
+
+pm2 logs — показує всі повідомлення та помилки сервера (замінює те, що ви раніше бачили в звичайному терміналі).
+
+
+
+https://www.olx.ua/d/uk/obyavlenie/videokamera-stop-signal-chevrolet-express-gmc-savana-lacetti-captiva-IDEAt0O.html?reason=seller_listing%7Colx_shop_premium
+
+https://www.olx.ua/d/uk/obyavlenie/magntola-kodiaq-skoda-yeti-kodak-kamiq-kamk-scala-carplay-androd-16-IDHyxF0.html?reason=seller_listing%7Colx_shop_premium

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Панель Менеджера</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="admin-header">
+        <div class="admin-logo">Avtozvuk <span>CRM</span></div>
+        <div class="admin-user-info" id="adminUserInfo">Завантаження...</div>
+        <button id="logoutBtn" class="btn-logout">⬅ В кабінет</button>
+    </header>
+
+    <main class="admin-container">
+        <div class="admin-actions">
+            <button id="refreshBtn" class="btn-refresh">Оновити дані</button>
+            <button id="saveAllBtn" class="btn-save">Зберегти зміни</button>
+        </div>
+        
+        <h1>📦 Всі замовлення</h1>
+        <div class="table-responsive">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Дата</th>
+                        <th>Клієнт</th>
+                        <th>Контакти</th>
+                        <th>Товари</th>
+                        <th>Сума</th>
+                        <th>Статус</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody"></tbody>
+            </table>
+        </div>
+        <div id="pagination" style="text-align: center; margin: 20px;"></div>
+    </main>
+
+    <script>
+        let currentPage = 1;
+
+        // Головна функція завантаження даних з пагінацією
+        async function loadOrders(page = 1) {
+            currentPage = page;
+            const tableBody = document.getElementById('ordersTableBody');
+            tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Завантаження...</td></tr>';
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/admin/orders?page=${page}`);
+                const data = await response.json();
+                const orders = data.orders;
+                const totalPages = Math.ceil(data.total / 20);
+                
+                if (!orders || orders.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Замовлень поки немає.</td></tr>';
+                    document.getElementById('pagination').innerHTML = '';
+                    return;
+                }
+
+                let html = '';
+                // Нумерація: віднімаємо від загальної кількості на сторінці
+                orders.forEach((order, index) => {
+                    const orderDate = new Date(order.created_at).toLocaleString('uk-UA');
+                    let itemsList = '';
+                    try {
+                        const items = JSON.parse(order.items);
+                        items.forEach(item => { itemsList += `<li><strong>${item.title}</strong> — ${item.quantity} шт.</li>`; });
+                    } catch (e) { itemsList = 'Помилка товарів'; }
+
+                    html += `<tr>
+                        <td>${order.crm_number ? order.crm_number : '#' + order.id}</td>
+                        <td>${orderDate}</td>
+                        <td><strong>${order.name}</strong></td>
+                        <td><a href="tel:${order.phone}" class="order-phone">${order.phone}</a></td>
+                        <td><ul class="order-items-list">${itemsList}</ul></td>
+                        <td>${order.total_price} грн</td>
+                        <td class="status-cell">
+                            <label><input type="checkbox" data-order-id="${order.id}" data-field="status_contacted" ${order.status_contacted ? 'checked' : ''}> 📞 Написав</label>
+                            <label><input type="checkbox" data-order-id="${order.id}" data-field="status_shipped" ${order.status_shipped ? 'checked' : ''}> 🚚 Відправили</label>
+                        </td>
+                        <td><button onclick="deleteOrder(${order.id})" class="btn-delete">🗑️ Видалити</button></td>
+                    </tr>`;
+                });
+                tableBody.innerHTML = html;
+
+
+                // Малювання розумної пагінації
+                const pagination = document.getElementById('pagination');
+                pagination.innerHTML = '';
+
+                // Додаємо кнопку "Назад"
+                if (page > 1) {
+                    const prevBtn = document.createElement('button');
+                    prevBtn.innerText = '«';
+                    prevBtn.className = 'btn-logout';
+                    prevBtn.onclick = () => loadOrders(page - 1);
+                    pagination.appendChild(prevBtn);
+                }
+
+                // Логіка показу сторінок
+                for (let i = 1; i <= totalPages; i++) {
+                    // Показуємо першу, останню та 2 сторінки навколо поточної
+                    if (i === 1 || i === totalPages || (i >= page - 2 && i <= page + 2)) {
+                        const btn = document.createElement('button');
+                        btn.innerText = i;
+                        btn.className = (i === page) ? 'btn-save' : 'btn-logout';
+                        btn.style.margin = '0 5px';
+                        btn.onclick = () => loadOrders(i);
+                        pagination.appendChild(btn);
+                    } else if (i === page - 3 || i === page + 3) {
+                        // Додаємо трикрапку
+                        const dots = document.createElement('span');
+                        dots.innerText = '...';
+                        dots.style.margin = '0 5px';
+                        pagination.appendChild(dots);
+                    }
+                }
+
+                // Додаємо кнопку "Вперед"
+                if (page < totalPages) {
+                    const nextBtn = document.createElement('button');
+                    nextBtn.innerText = '»';
+                    nextBtn.className = 'btn-logout';
+                    nextBtn.onclick = () => loadOrders(page + 1);
+                    pagination.appendChild(nextBtn);
+                }
+            } catch (err) {
+                tableBody.innerHTML = '<tr><td colspan="8" style="color:red; text-align:center;">Помилка сервера!</td></tr>';
+            }
+        }
+
+        // Обробка сторінки
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userDataString = localStorage.getItem('user');
+            if (!userDataString) { window.location.href = 'main.html'; return; }
+            const user = JSON.parse(userDataString);
+            
+            try {
+                const res = await fetch(`http://localhost:3001/api/admin/profile?id=${user.id}`);
+                const profile = await res.json();
+                document.getElementById('adminUserInfo').innerText = `Менеджер: ${profile.first_name} ${profile.last_name}`;
+            } catch(e) { document.getElementById('adminUserInfo').innerText = `Менеджер: ${user.first_name}`; }
+
+            loadOrders(1);
+
+            document.getElementById('refreshBtn').addEventListener('click', () => loadOrders(currentPage));
+            document.getElementById('logoutBtn').addEventListener('click', () => window.location.href = 'cabinet.html');
+            
+            document.getElementById('saveAllBtn').addEventListener('click', async () => {
+                const updates = Array.from(document.querySelectorAll('input[type="checkbox"]')).map(cb => ({
+                    order_id: cb.getAttribute('data-order-id'),
+                    field: cb.getAttribute('data-field'),
+                    value: cb.checked
+                }));
+                const response = await fetch('http://localhost:3001/api/admin/save-all-statuses', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ updates })
+                });
+                if (response.ok) { alert('Збережено!'); loadOrders(currentPage); }
+            });
+        });
+
+        async function deleteOrder(orderId) {
+            if (!confirm('Видалити це замовлення?')) return;
+            const response = await fetch(`http://localhost:3001/api/admin/delete-order/${orderId}`, { method: 'DELETE' });
+            if (response.ok) { alert('Замовлення видалено!'); loadOrders(currentPage); }
+        }
+    </script>
+</body>
+</html>

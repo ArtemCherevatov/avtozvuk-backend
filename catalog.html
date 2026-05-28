@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог - Avtozvuk Zhytomyr</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="container header-inner">
+            <div class="logo"><a href="index.html">AVTOZVUK<br><span>ZHYTOMYR</span></a></div>
+            
+            <button class="mobile-menu-btn" id="burgerBtn">☰</button>
+
+            <div class="header-nav-group" id="mobileNav">
+                <ul class="nav-menu">
+                    <li><a href="main.html">Головна</a></li>
+                    <li><a href="catalog.html">Каталог</a></li>
+                    <li><a href="delivery.html">Доставка та оплата</a></li>
+                    <li><a href="returns.html">Повернення та обмін</a></li>
+                    <li><a href="contacts.html">Контакти</a></li>
+                </ul>
+                <div class="header-actions">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Пошук...">
+                        <button id="searchBtn">🔍</button>
+                    </div>
+                    <div class="profile-container" id="profileDropdown">
+                        <button class="profile-link" id="profileBtn" style="background: none; border: none; cursor: pointer;">
+                            <div class="profile-icon">👤</div>
+                        </button>
+                        
+                        <ul class="dropdown-menu" id="profileMenu">
+                            <li><a href="cabinet.html">Мій кабінет</a></li>
+                            <li><a href="my-orders.html">Мої замовлення</a></li>
+                            <li><a href="#" id="dropdownLogoutBtn" style="color: #ef4444;">Вийти</a></li>
+                        </ul>
+                    </div>
+                    <a href="cart.html" class="cart-btn">
+                        🛒 <span id="cartCount">0</span>
+                    </a>
+                    <strong>+38 067 123 4567</strong>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container page-content">
+        <h1 class="page-title">Каталог магнітол</h1>
+
+        <div class="categories-grid" id="categoryFilters">
+            <div class="category-card active" data-category="all">
+                <h3>Всі товари</h3>
+            </div>
+            <div class="category-card" data-category="magnitola">
+                <h3>Магнітоли</h3>
+            </div>
+            <div class="category-card" data-category="camera">
+                <h3>Камери та Парктроніки</h3>
+            </div>
+        </div>
+        
+        <div class="products-grid" id="catalogGrid">
+            <p style="text-align: center; width: 100%; color: #999;">Завантаження товарів...</p>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="container footer-inner">
+            <div>
+                <div class="logo">AVTOZVUK<br><span>ZHYTOMYR</span></div>
+            </div>
+            <div>
+                <h3>Адреса</h3>
+                <p>Житомир, вул. Михайлівська, 10</p>
+                <p>Телефон: +38 067 123 4567</p>
+            </div>
+            <div>
+                <h3>Соцмережі</h3>
+                <p>Facebook | Instagram | Telegram</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
