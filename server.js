@@ -243,12 +243,13 @@ app.post('/api/login', (req, res) => {
         }
     });
 });
-// Маршрут для реєстрації нових користувачів
+// Оновлений маршрут для реєстрації з усіма полями
 app.post('/api/register', (req, res) => {
-    // Отримуємо дані з форми реєстрації (фронтенду)
-    const { email, password } = req.body;
+    // Отримуємо абсолютно всі дані з форми (фронтенду)
+    // Переконайтеся, що назви змінних збігаються з тим, що відправляється у body вашого fetch-запиту
+    const { firstName, lastName, phone, email, password } = req.body;
     
-    // 1. Спочатку перевіряємо, чи вже існує користувач із такою поштою
+    // 1. Спочатку перевіряємо, чи існує користувач із такою поштою
     const checkUserSql = 'SELECT * FROM users WHERE email = ?';
     
     db.query(checkUserSql, [email], (err, results) => {
@@ -257,21 +258,23 @@ app.post('/api/register', (req, res) => {
             return res.status(500).json({ error: 'Помилка сервера' });
         }
         
-        // Якщо знайшли хоча б один рядок — пошта зайнята
         if (results.length > 0) {
             return res.status(400).json({ error: 'Користувач з таким email вже існує!' });
         }
         
-        // 2. Якщо пошта вільна, записуємо нового користувача в базу даних
-        const insertUserSql = 'INSERT INTO users (email, password) VALUES (?, ?)';
+        // 2. Якщо пошта вільна, записуємо ВСІ дані в базу даних
+        // (Тут назви колонок у дужках мають точно збігатися з назвами у вашій таблиці users в MySQL)
+        const insertUserSql = 'INSERT INTO users (first_name, last_name, phone, email, password) VALUES (?, ?, ?, ?, ?)';
         
-        db.query(insertUserSql, [email, password], (err, result) => {
+        db.query(insertUserSql, [firstName, lastName, phone, email, password], (err, result) => {
             if (err) {
                 console.error("Помилка при збереженні користувача:", err);
-                return res.status(500).json({ error: 'Не вдалося зареєструвати користувача' });
+                return res.status(500).json({ 
+                    error: 'Не вдалося зареєструвати користувача. Перевірте, чи існують колонки first_name, last_name, phone у таблиці users!' 
+                });
             }
             
-            // Повертаємо успішну відповідь фронтенду
+            // Повертаємо успішну відповідь
             res.json({ message: 'Реєстрація успішна!', userId: result.insertId });
         });
     });
