@@ -219,6 +219,63 @@ app.get('/api/my-orders', (req, res) => {
         res.json(results);
     });
 });
+// --- АВТОРИЗАЦІЯ ---
+// Маршрут для входу
+app.post('/api/login', (req, res) => {
+    // Отримуємо email та пароль з фронтенду
+    const { email, password } = req.body;
+    
+    // Шукаємо користувача в базі даних (у таблиці users)
+    const sql = 'SELECT * FROM users WHERE email = ? AND password = ?';
+    
+    db.query(sql, [email, password], (err, results) => {
+        if (err) {
+            console.error("Помилка бази даних:", err);
+            return res.status(500).json({ error: 'Помилка сервера' });
+        }
+        
+        // Якщо користувача знайдено
+        if (results.length > 0) {
+            res.json({ message: 'Вхід успішний!', user: results[0] });
+        } else {
+            // Якщо email або пароль не збігаються
+            res.status(401).json({ error: 'Невірний email або пароль' });
+        }
+    });
+});
+// Маршрут для реєстрації нових користувачів
+app.post('/api/register', (req, res) => {
+    // Отримуємо дані з форми реєстрації (фронтенду)
+    const { email, password } = req.body;
+    
+    // 1. Спочатку перевіряємо, чи вже існує користувач із такою поштою
+    const checkUserSql = 'SELECT * FROM users WHERE email = ?';
+    
+    db.query(checkUserSql, [email], (err, results) => {
+        if (err) {
+            console.error("Помилка при перевірці email:", err);
+            return res.status(500).json({ error: 'Помилка сервера' });
+        }
+        
+        // Якщо знайшли хоча б один рядок — пошта зайнята
+        if (results.length > 0) {
+            return res.status(400).json({ error: 'Користувач з таким email вже існує!' });
+        }
+        
+        // 2. Якщо пошта вільна, записуємо нового користувача в базу даних
+        const insertUserSql = 'INSERT INTO users (email, password) VALUES (?, ?)';
+        
+        db.query(insertUserSql, [email, password], (err, result) => {
+            if (err) {
+                console.error("Помилка при збереженні користувача:", err);
+                return res.status(500).json({ error: 'Не вдалося зареєструвати користувача' });
+            }
+            
+            // Повертаємо успішну відповідь фронтенду
+            res.json({ message: 'Реєстрація успішна!', userId: result.insertId });
+        });
+    });
+});
 app.listen(3001, () => {
     console.log('Сервер працює: https://avtozvuk-api.onrender.com');
 });
