@@ -220,63 +220,58 @@ app.get('/api/my-orders', (req, res) => {
     });
 });
 // --- АВТОРИЗАЦІЯ ---
-// Маршрут для входу
+
+// Маршрут для логіну
 app.post('/api/login', (req, res) => {
-    // Отримуємо email та пароль з фронтенду
     const { email, password } = req.body;
     
-    // Шукаємо користувача в базі даних (у таблиці users)
-    const sql = 'SELECT * FROM users WHERE email = ? AND password = ?';
+    // Шукаємо користувача тільки за email
+    const sql = 'SELECT * FROM users WHERE email = ?';
     
-    db.query(sql, [email, password], (err, results) => {
-        if (err) {
-            console.error("Помилка бази даних:", err);
-            return res.status(500).json({ error: 'Помилка сервера' });
+    db.query(sql, [email], async (err, results) => {
+        if (err) return res.status(500).json({ error: 'Помилка сервера' });
+        
+        // Якщо користувача не знайдено
+        if (results.length === 0) {
+            return res.status(401).json({ error: 'Невірний email або пароль' });
         }
         
-        // Якщо користувача знайдено
-        if (results.length > 0) {
-            res.json({ message: 'Вхід успішний!', user: results[0] });
+        const user = results[0];
+        
+        // Порівнюємо введений пароль із зашифрованим з бази
+        const match = await bcrypt.compare(password, user.password);
+        
+        if (match) {
+            res.json({ message: 'Вхід успішний!', user: user });
         } else {
-            // Якщо email або пароль не збігаються
             res.status(401).json({ error: 'Невірний email або пароль' });
         }
     });
 });
-// Оновлений маршрут для реєстрації з усіма полями
-app.post('/api/register', (req, res) => {
-    // Отримуємо абсолютно всі дані з форми (фронтенду)
-    // Переконайтеся, що назви змінних збігаються з тим, що відправляється у body вашого fetch-запиту
+
+// Маршрут для реєстрації
+app.post('/api/register', async (req, res) => {
     const { firstName, lastName, phone, email, password } = req.body;
     
-    // 1. Спочатку перевіряємо, чи існує користувач із такою поштою
+    // Перевіряємо, чи є такий email
     const checkUserSql = 'SELECT * FROM users WHERE email = ?';
-    
-    db.query(checkUserSql, [email], (err, results) => {
-        if (err) {
-            console.error("Помилка при перевірці email:", err);
-            return res.status(500).json({ error: 'Помилка сервера' });
-        }
+    db.query(checkUserSql, [email], async (err, results) => {
+        if (err) return res.status(500).json({ error: 'Помилка сервера' });
+        if (results.length > 0) return res.status(400).json({ error: 'Користувач з таким email вже існує!' });
         
-        if (results.length > 0) {
-            return res.status(400).json({ error: 'Користувач з таким email вже існує!' });
-        }
-        
-        // 2. Якщо пошта вільна, записуємо ВСІ дані в базу даних
-        // (Тут назви колонок у дужках мають точно збігатися з назвами у вашій таблиці users в MySQL)
-        const insertUserSql = 'INSERT INTO users (first_name, last_name, phone, email, password) VALUES (?, ?, ?, ?, ?)';
-        
-        db.query(insertUserSql, [firstName, lastName, phone, email, password], (err, result) => {
-            if (err) {
-                console.error("Помилка при збереженні користувача:", err);
-                return res.status(500).json({ 
-                    error: 'Не вдалося зареєструвати користувача. Перевірте, чи існують колонки first_name, last_name, phone у таблиці users!' 
-                });
-            }
+        try {
+            // Шифруємо пароль перед збереженням
+            const hashedPassword = await bcrypt.hash(password, 10);
             
-            // Повертаємо успішну відповідь
-            res.json({ message: 'Реєстрація успішна!', userId: result.insertId });
-        });
+            // Зберігаємо всі дані
+            const insertUserSql = 'INSERT INTO users (first_name, last_name, phone, email, password) VALUES (?, ?, ?, ?, ?)';
+            db.query(insertUserSql, [firstName, lastName, phone, email, hashedPassword], (err, result) => {
+                if (err) return res.status(500).json({ error: 'Не вдалося зареєструвати' });
+                res.json({ message: 'Реєстрація успішна!', userId: result.insertId });
+            });
+        } catch (hashError) {
+            res.status(500).json({ error: 'Помилка шифрування пароля' });
+        }
     });
 });
 app.listen(3001, () => {
