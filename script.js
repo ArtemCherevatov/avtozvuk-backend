@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dropdownLogoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 localStorage.removeItem('user');
-                window.location.href = 'main.html';
+                window.location.href = 'index.html';
             });
         }
     }
@@ -177,7 +177,7 @@ if (window.location.href.includes('authorization.html')) {
                         // ВАЖЛИВО: Окремо зберігаємо ID для замовлень
                         localStorage.setItem('user_id', data.user.id); 
                         
-                        setTimeout(() => { window.location.href = 'main.html'; }, 1000);
+                        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
                     }
                 } catch (error) {
                     loginMessage.innerHTML = '<span style="color: #ff4d4d;">Помилка з\'єднання.</span>';
@@ -191,7 +191,7 @@ if (window.location.href.includes('authorization.html')) {
 // =========================================
 // 4. ГОЛОВНА СТОРІНКА (ПОПУЛЯРНІ ТОВАРИ)
 // =========================================
-if (window.location.href.includes('main.html') || window.location.pathname === '/') {
+if (window.location.href.includes('index.html') || window.location.pathname === '/') {
     document.addEventListener('DOMContentLoaded', () => {
         const popularContainer = document.getElementById('catalogGrid');
         

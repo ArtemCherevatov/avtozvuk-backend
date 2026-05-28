@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const popularContainer = document.getElementById('catalogGrid');
     
     // Перевіряємо, чи ми на головній сторінці
-    if (popularContainer && window.location.href.includes('main.html')) {
+    if (popularContainer && window.location.href.includes('index.html')) {
         
         // Список ваших 4 ID товарів
         const targetIds = [1, 2, 3, 5]; 

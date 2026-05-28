@@ -136,7 +136,7 @@
         // Обробка сторінки
         document.addEventListener('DOMContentLoaded', async () => {
             const userDataString = localStorage.getItem('user');
-            if (!userDataString) { window.location.href = 'main.html'; return; }
+            if (!userDataString) { window.location.href = 'index.html'; return; }
             const user = JSON.parse(userDataString);
             
             try {

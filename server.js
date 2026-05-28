@@ -8,7 +8,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
+app.use(express.static(__dirname));
 const db = mysql.createConnection({
     host: 'mysql-16959fe0-gryden-542d.l.aivencloud.com',
     port: 15684, // Ваш порт з Aiven
