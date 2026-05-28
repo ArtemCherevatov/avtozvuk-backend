@@ -196,7 +196,7 @@ if (window.location.href.includes('index.html') || window.location.pathname === 
         const popularContainer = document.getElementById('catalogGrid');
         
         if (popularContainer) {
-            const targetIds = [1, 2, 3, 4]; 
+            const targetIds = [1, 2, 3, 5]; 
             fetch(`https://avtozvuk-api.onrender.com/api/popular-products?ids=${targetIds.join(',')}`)
                 .then(response => response.json())
                 .then(products => {
