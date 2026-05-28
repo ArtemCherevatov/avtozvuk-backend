@@ -118,31 +118,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-// ЯК ТРЕБА ЗРОБИТИ:
-const checkoutForm = document.getElementById('checkoutForm');
 
-    if (checkoutForm) {
-        checkoutForm.addEventListener('submit', async (e) => {
-            // ... ваш код оформлення замовлення ...
-        });
-    }
 
-    checkboxes.forEach(cb => {
-        updates.push({
-            order_id: cb.getAttribute('data-order-id'),
-            field: cb.getAttribute('data-field'),
-            value: cb.checked
-        });
-    });
-
-    try {
-        const response = await fetch('https://avtozvuk-api.onrender.com/api/admin/save-all-statuses', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ updates })
-        });
-        
-        if (response.ok) alert('Зміни успішно збережено!');
-    } catch (e) {
-        alert('Помилка збереження');
-    }
