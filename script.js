@@ -10,7 +10,7 @@ if (!sessionId) {
 // Функція оновлення кількості товарів у кошику
 async function updateCartCount() {
     try {
-        const response = await fetch(`http://localhost:3001/api/cart/count?session_id=${sessionId}`);
+        const response = await fetch(`https://avtozvuk-api.onrender.com/api/cart/count?session_id=${sessionId}`);
         const data = await response.json();
         const cartCountEl = document.getElementById('cartCount');
         if (cartCountEl) cartCountEl.innerText = data.count || 0;
@@ -135,7 +135,7 @@ if (window.location.href.includes('authorization.html')) {
                 const password = document.getElementById('regPassword').value;
 
                 try {
-                    const response = await fetch('http://localhost:3001/api/register', {
+                    const response = await fetch('https://avtozvuk-api.onrender.com/api/register', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ first_name, last_name, phone, email, password }) 
@@ -159,7 +159,7 @@ if (window.location.href.includes('authorization.html')) {
                 const password = document.getElementById('loginPassword').value;
 
                 try {
-                    const response = await fetch('http://localhost:3001/api/login', {
+                    const response = await fetch('https://avtozvuk-api.onrender.com/api/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email, password })
@@ -197,7 +197,7 @@ if (window.location.href.includes('main.html') || window.location.pathname === '
         
         if (popularContainer) {
             const targetIds = [1, 2, 3, 4]; 
-            fetch(`http://localhost:3001/api/popular-products?ids=${targetIds.join(',')}`)
+            fetch(`https://avtozvuk-api.onrender.com/api/popular-products?ids=${targetIds.join(',')}`)
                 .then(response => response.json())
                 .then(products => {
                     popularContainer.innerHTML = ''; 
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         async function loadProducts(category = 'all', searchQuery = '') {
             try {
-                let url = `http://localhost:3001/api/products?category=${category}`;
+                let url = `https://avtozvuk-api.onrender.com/api/products?category=${category}`;
                 if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
 
                 const response = await fetch(url);
@@ -314,7 +314,7 @@ if (window.location.href.includes('product.html')) {
         }
 
         try {
-            const response = await fetch(`http://localhost:3001/api/product/${productId}`);
+            const response = await fetch(`https://avtozvuk-api.onrender.com/api/product/${productId}`);
             const product = await response.json();
 
             if (product.error) {
@@ -412,7 +412,7 @@ if (window.location.href.includes('product.html')) {
         if (myCartBtn) {
             myCartBtn.addEventListener('click', async () => { 
                 try {
-                    const response = await fetch('http://localhost:3001/api/cart', {
+                    const response = await fetch('https://avtozvuk-api.onrender.com/api/cart', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ session_id: sessionId, product_id: productId })
@@ -453,7 +453,7 @@ if (window.location.href.includes('my-orders.html')) {
         } else if (ordersContainer) {
             const user = JSON.parse(userRaw);
             // ЗМІНІТЬ ЦЕЙ РЯДОК:
-            fetch(`http://localhost:3001/api/my-orders?user_id=${user.id}`) // Тепер передаємо user.id
+            fetch(`https://avtozvuk-api.onrender.com/api/my-orders?user_id=${user.id}`) // Тепер передаємо user.id
                 .then(res => res.json())
                 .then(orders => {
                     if (orders.length === 0) {
@@ -507,7 +507,7 @@ if (window.location.href.includes('cart.html')) {
     // 1. Функція завантаження товарів
     async function loadCart() {
         try {
-            const response = await fetch(`http://localhost:3001/api/cart?session_id=${cartSessionId}`);
+            const response = await fetch(`https://avtozvuk-api.onrender.com/api/cart?session_id=${cartSessionId}`);
             const items = await response.json();
 
             if (items.length === 0) {
@@ -555,7 +555,7 @@ if (window.location.href.includes('cart.html')) {
         else if (btn.classList.contains('delete-btn')) action = 'delete';
 
         try {
-            const response = await fetch('http://localhost:3001/api/cart/update', {
+            const response = await fetch('https://avtozvuk-api.onrender.com/api/cart/update', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cart_id: btn.getAttribute('data-id'), action: action })
@@ -601,7 +601,7 @@ if (window.location.href.includes('cart.html')) {
 
             try {
                 // Відправляємо замовлення на сервер
-                const response = await fetch('http://localhost:3001/api/checkout', {
+                const response = await fetch('https://avtozvuk-api.onrender.com/api/checkout', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(orderData)

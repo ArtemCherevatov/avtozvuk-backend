@@ -220,5 +220,5 @@ app.get('/api/my-orders', (req, res) => {
     });
 });
 app.listen(3001, () => {
-    console.log('Сервер працює: http://localhost:3001');
+    console.log('Сервер працює: https://avtozvuk-api.onrender.com');
 });

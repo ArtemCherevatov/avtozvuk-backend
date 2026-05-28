@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3001/api/update-profile', {
+            const response = await fetch('https://avtozvuk-api.onrender.com/api/update-profile', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ oldEmail, phone, email, oldPassword, newPassword })
@@ -136,7 +136,7 @@ const checkoutForm = document.getElementById('checkoutForm');
     });
 
     try {
-        const response = await fetch('http://localhost:3001/api/admin/save-all-statuses', {
+        const response = await fetch('https://avtozvuk-api.onrender.com/api/admin/save-all-statuses', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ updates })

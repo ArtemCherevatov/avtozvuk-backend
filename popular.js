@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Список ваших 4 ID товарів
         const targetIds = [1, 2, 3, 5]; 
         
-        fetch(`http://localhost:3001/api/popular-products?ids=${targetIds.join(',')}`)
+        fetch(`https://avtozvuk-api.onrender.com/api/popular-products?ids=${targetIds.join(',')}`)
             .then(response => response.json())
             .then(products => {
                 // Повне очищення перед вставкою
