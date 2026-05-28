@@ -1383,7 +1383,7 @@ body {
 }
 
 .admin-user-info {
-    font-size: 16px;
+    font-size: 20px;
     color: #ccc;
 }
 
@@ -1872,6 +1872,35 @@ input[type="checkbox"] {
     }
     .category-card.highlight {
         border-color: #fbbf24;
+    }
+    .admin-user-info {
+        font-size: 10px;
+        color: #ccc;
+    }
+    .btn-logout {
+        background: #ff4d4d;
+        color: white;
+        border: none;
+        padding: 8px 5px;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 150px;
+        transition: 0.3s;
+    }
+
+    .btn-logout:hover {
+        background: #cc3333;
+    }
+    .admin-logo {
+        font-size: 20px;
+        font-weight: bold;
+        color: #3b82f6;
+    }
+
+    .admin-logo span {
+        color: #f87171;
+        font-size: 16px;
+        vertical-align: middle;
     }
 }
 /* Максимально жорстке правило для мобільних */
