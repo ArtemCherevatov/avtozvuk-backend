@@ -9,12 +9,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: 'mysql-16959fe0-gryden-542d.l.aivencloud.com',
     port: 15684, // Ваш порт з Aiven
     user: 'avnadmin',
     password: process.env.DB_PASSWORD,
     database: 'defaultdb',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
     ssl: {
         rejectUnauthorized: false // Хмарні бази часто вимагають SSL-з'єднання
     }
