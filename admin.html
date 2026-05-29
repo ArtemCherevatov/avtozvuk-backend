@@ -80,7 +80,7 @@
                         <td><ul class="order-items-list">${itemsList}</ul></td>
                         <td>${order.total_price} грн</td>
                         <td class="status-cell">
-                            <label><input type="checkbox" data-order-id="${order.id}" data-field="status_contacted" ${order.status_contacted ? 'checked' : ''}> 📞 Написав</label>
+                            <label><input type="checkbox" data-order-id="${order.id}" data-field="status_contacted" ${order.status_contacted ? 'checked' : ''}> 📞 Написали</label>
                             <label><input type="checkbox" data-order-id="${order.id}" data-field="status_shipped" ${order.status_shipped ? 'checked' : ''}> 🚚 Відправили</label>
                         </td>
                         <td><button onclick="deleteOrder(${order.id})" class="btn-delete">🗑️ Видалити</button></td>
