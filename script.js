@@ -273,6 +273,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // --- ПАГІНАЦІЯ: Змінні ---
+        let allProducts = []; // Тут зберігаємо всі завантажені товари
+        const itemsPerPage = 20; // Кількість товарів на сторінці
+        let currentPage = 1; // Поточна сторінка
+
         // --- ЗАВАНТАЖЕННЯ ТОВАРІВ ---
         async function loadProducts(category = 'all', searchQuery = '') {
             try {
@@ -280,36 +285,81 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
 
                 const response = await fetch(url);
-                const products = await response.json();
+                allProducts = await response.json();
 
-                catalogGrid.innerHTML = ''; 
-
-                if (products.length === 0) {
+                if (allProducts.length === 0) {
                     catalogGrid.innerHTML = '<p style="text-align: center; width: 100%; color: #999;">За вашим запитом нічого не знайдено.</p>';
+                    const paginationDiv = document.getElementById('pagination');
+                    if (paginationDiv) paginationDiv.innerHTML = ''; // Ховаємо пагінацію
                     return;
                 }
 
-                products.forEach(product => {
-                    const card = `
-                        <div class="product-card">
-                            <img src="${product.image_url}" alt="${product.title}" class="product-img">
-                            <h3 class="product-title">${product.title}</h3>
-                            <div class="product-price">${product.price} грн</div>
-                            <a href="product.html?id=${product.id}" class="btn-buy">КУПИТИ</a>
-                        </div>
-                    `;
-                    catalogGrid.innerHTML += card;
-                });
+                currentPage = 1; // Завжди починаємо з першої сторінки
+                displayPage(currentPage);
+                setupPagination();
+
             } catch (error) {
                 console.error('Помилка завантаження товарів:', error);
                 catalogGrid.innerHTML = '<p>Не вдалося завантажити товари.</p>';
             }
         }
 
+        // --- ВІДОБРАЖЕННЯ КОНКРЕТНОЇ СТОРІНКИ ---
+        function displayPage(page) {
+            catalogGrid.innerHTML = '';
+            
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedItems = allProducts.slice(start, end);
+
+            paginatedItems.forEach(product => {
+                const card = `
+                    <div class="product-card">
+                        <img src="${product.image_url}" alt="${product.title}" class="product-img">
+                        <h3 class="product-title">${product.title}</h3>
+                        <div class="product-price">${product.price} грн</div>
+                        <a href="product.html?id=${product.id}" class="btn-buy">КУПИТИ</a>
+                    </div>
+                `;
+                catalogGrid.innerHTML += card;
+            });
+        }
+
+        // --- СТВОРЕННЯ КНОПОК ПАГІНАЦІЇ ---
+        function setupPagination() {
+            const paginationDiv = document.getElementById('pagination');
+            if (!paginationDiv) return;
+            paginationDiv.innerHTML = '';
+
+            const pageCount = Math.ceil(allProducts.length / itemsPerPage);
+            if (pageCount <= 1) return; // Не малюємо кнопки, якщо сторінка лише одна
+
+            for (let i = 1; i <= pageCount; i++) {
+                const btn = document.createElement('button');
+                btn.classList.add('page-btn');
+                if (i === currentPage) btn.classList.add('active'); // Синя кнопка для поточної
+                btn.innerText = i;
+
+                btn.addEventListener('click', () => {
+                    currentPage = i;
+                    displayPage(currentPage);
+                    setupPagination(); // Оновлюємо колір кнопок
+                    
+                    // Плавна прокрутка вгору при натисканні на нову сторінку
+                    const bigSearch = document.querySelector('.big-search-wrapper') || document.getElementById('catalogGrid');
+                    if (bigSearch) {
+                        bigSearch.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+
+                paginationDiv.appendChild(btn);
+            }
+        }
+
         // Завантажуємо товари при відкритті сторінки
         loadProducts(filterFromUrl, searchParam);
 
-        // --- ФІЛЬТРАЦІЯ ПО КАТЕГОРІЯХ (Кнопки) ---
+        // --- ФІЛЬТРАЦІЯ ПО КАТЕГОРІЯХ (Кнопки "Магнітоли", "Камери") ---
         const categoryButtons = document.querySelectorAll('.category-card');
         categoryButtons.forEach(button => {
             if (button.getAttribute('data-category') === filterFromUrl) {

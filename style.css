@@ -1691,7 +1691,39 @@ input[type="checkbox"] {
 #big-search-btn:hover {
     background-color: #2563eb; /* Трохи темніший синій при наведенні */
 }
+/* Контейнер для кнопок сторінок */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 40px;
+    margin-bottom: 50px;
+    width: 100%;
+}
 
+/* Зовнішній вигляд неактивної кнопки сторінки */
+.page-btn {
+    background-color: #26262b; /* Темний фон */
+    color: #fff;
+    border: 2px solid #333;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.page-btn:hover {
+    border-color: #3b82f6; /* Синя рамка при наведенні */
+}
+
+/* Активна (поточна) сторінка - як на вашому фото */
+.page-btn.active {
+    background-color: #3b82f6; /* Ваш синій колір */
+    border-color: #3b82f6;
+    color: white;
+}
 /* Адаптація для телефонів */
 @media (max-width: 600px) {
     .big-search-container {
@@ -1974,6 +2006,17 @@ input[type="checkbox"] {
         color: #f87171;
         font-size: 16px;
         vertical-align: middle;
+    }
+    .cart-btn {
+        background-color: #3b82f6;
+        padding: 12px 16px;
+        border-radius: 5px;
+        color: white;
+        font-weight: 600;
+        transition: background 0.3s;
+    }
+    .cart-btn:hover {
+        background-color: #2563eb;
     }
 }
 /* Максимально жорстке правило для мобільних */
