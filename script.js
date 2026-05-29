@@ -138,7 +138,7 @@ if (window.location.href.includes('authorization.html')) {
                     const response = await fetch('https://avtozvuk-api.onrender.com/api/register', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ first_name, last_name, phone, email, password }) 
+                        body: JSON.stringify({ first_name, last_name, phone, email, password}) 
                     });
                     const data = await response.json();
                     if (!response.ok) {

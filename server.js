@@ -250,7 +250,8 @@ app.post('/api/login', (req, res) => {
 
 // Маршрут для реєстрації
 app.post('/api/register', async (req, res) => {
-    const { firstName, lastName, phone, email, password } = req.body;
+    // 1. ВИПРАВЛЕНО: Тепер приймаємо first_name та last_name (як відправляє сайт)
+    const { first_name, last_name, phone, email, password } = req.body;
     
     // Перевіряємо, чи є такий email
     const checkUserSql = 'SELECT * FROM users WHERE email = ?';
@@ -264,8 +265,13 @@ app.post('/api/register', async (req, res) => {
             
             // Зберігаємо всі дані
             const insertUserSql = 'INSERT INTO users (first_name, last_name, phone, email, password) VALUES (?, ?, ?, ?, ?)';
-            db.query(insertUserSql, [firstName, lastName, phone, email, hashedPassword], (err, result) => {
-                if (err) return res.status(500).json({ error: 'Не вдалося зареєструвати' });
+            
+            // 2. ВИПРАВЛЕНО: Передаємо правильні змінні first_name та last_name у запит
+            db.query(insertUserSql, [first_name, last_name, phone, email, hashedPassword], (err, result) => {
+                if (err) {
+                    console.error("MYSQL ERROR:", err); // Виведе реальну помилку в логи Render, якщо щось піде не так
+                    return res.status(500).json({ error: 'Не вдалося зареєструвати' });
+                }
                 res.json({ message: 'Реєстрація успішна!', userId: result.insertId });
             });
         } catch (hashError) {
