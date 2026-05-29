@@ -23,10 +23,6 @@ const db = mysql.createPool({
     }
 });
 
-db.connect(err => {
-    if (err) console.error('Помилка підключення:', err);
-    else console.log('Успішно підключено до хмарної MySQL!');
-});
 
 // --- API ТОВАРІВ ---
 app.get('/api/products', (req, res) => {
