@@ -250,17 +250,20 @@ header .container {
 }
 
 .categories-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
-    margin-bottom: 50px;
+    display: flex;
+    justify-content: center; /* Збирає кнопки по центру */
+    gap: 15px;               /* Відстань між кнопками (змінюйте на свій смак, наприклад 10px або 20px) */
+    flex-wrap: wrap;         /* Дозволяє кнопкам переноситися на новий рядок на екранах телефонів */
+    margin-top: 20px;
+    margin-bottom: 30px;
 }
 .category-card {
     background-color: #27272b;
     border-radius: 10px;
-    padding: 25px;
+    padding: 15px;
     text-align: center;
-    height: 120px;
+    height: 50px;
+    width: 260px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1628,7 +1631,77 @@ input[type="checkbox"] {
     background-color: #f3f4f6;
     color: #3b82f6;
 }
+/* Обгортка для центрування */
+.big-search-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 30px; /* Відступ до кнопок категорій */
+    margin-top: 20px;    /* Відступ від заголовка */
+}
 
+/* Сам контейнер пошуку */
+.big-search-container {
+    display: flex;
+    width: 100%;
+    max-width: 800px; /* Максимальна ширина пошуку */
+    gap: 10px;
+    padding: 0 20px;
+}
+
+/* Поле вводу */
+#big-catalog-search {
+    flex-grow: 1;
+    padding: 15px 25px;
+    font-size: 18px;
+    background-color: #26262b; /* Темний колір, як у карток товарів */
+    border: 2px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* Ефект при кліку на поле вводу */
+#big-catalog-search:focus {
+    border-color: #3b82f6; /* Ваш фірмовий синій колір */
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+#big-catalog-search::placeholder {
+    color: #888;
+}
+
+/* Кнопка пошуку */
+#big-search-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 30px;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: #3b82f6; /* Ваш синій колір */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#big-search-btn:hover {
+    background-color: #2563eb; /* Трохи темніший синій при наведенні */
+}
+
+/* Адаптація для телефонів */
+@media (max-width: 600px) {
+    .big-search-container {
+        flex-direction: column;
+    }
+    #big-search-btn {
+        padding: 15px;
+        justify-content: center;
+    }
+}
 @media (max-width: 768px) {
     .contacts-wrapper {
         grid-template-columns: 1fr;

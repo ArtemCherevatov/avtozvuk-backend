@@ -25,10 +25,6 @@
                     <li><a href="contacts.html">Контакти</a></li>
                 </ul>
                 <div class="header-actions">
-                    <div class="search-container">
-                        <input type="text" id="searchInput" placeholder="Пошук...">
-                        <button id="searchBtn">🔍</button>
-                    </div>
                     <div class="profile-container" id="profileDropdown">
                         <button class="profile-link" id="profileBtn" style="background: none; border: none; cursor: pointer;">
                             <div class="profile-icon">👤</div>
@@ -51,7 +47,18 @@
 
     <main class="container page-content">
         <h1 class="page-title">Каталог магнітол</h1>
-
+        <div class="big-search-wrapper">
+            <div class="big-search-container">
+                <input type="text" id="big-catalog-search" placeholder="Введіть марку авто (наприклад: VW, Skoda, BMW)...">
+                <button id="big-search-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    Знайти
+                </button>
+            </div>
+        </div>
         <div class="categories-grid" id="categoryFilters">
             <div class="category-card active" data-category="all">
                 <h3>Всі товари</h3>

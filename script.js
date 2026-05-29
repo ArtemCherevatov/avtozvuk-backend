@@ -225,6 +225,9 @@ if (window.location.href.includes('index.html') || window.location.pathname === 
 // 5. КАТАЛОГ ТА ПОШУК
 // =========================================
 document.addEventListener('DOMContentLoaded', () => {
+    // =========================================
+    // 1. СТАРИЙ ПОШУК У ШАПЦІ (Для Головної сторінки тощо)
+    // =========================================
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
 
@@ -238,6 +241,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // =========================================
+    // 2. ЛОГІКА СТОРІНКИ КАТАЛОГУ
+    // =========================================
     if (window.location.href.includes('catalog.html')) {
         const catalogGrid = document.getElementById('catalogGrid');
         if (!catalogGrid) return;
@@ -246,8 +252,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const searchParam = urlParams.get('search') || '';
         const filterFromUrl = urlParams.get('filter') || 'all';
 
-        if (searchParam && searchInput) searchInput.value = searchParam;
+        // --- НОВИЙ ВЕЛИКИЙ ПОШУК ---
+        const bigSearchInput = document.getElementById('big-catalog-search');
+        const bigSearchBtn = document.getElementById('big-search-btn');
 
+        // Якщо в URL є пошуковий запит - вставляємо його у велике поле
+        if (searchParam && bigSearchInput) {
+            bigSearchInput.value = searchParam;
+        }
+
+        // Обробка кліку по великій кнопці "Знайти"
+        if (bigSearchBtn && bigSearchInput) {
+            bigSearchBtn.addEventListener('click', () => {
+                const query = bigSearchInput.value.trim();
+                // Перезавантажуємо сторінку з новим пошуком
+                window.location.href = `catalog.html?search=${encodeURIComponent(query)}`;
+            });
+            bigSearchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') bigSearchBtn.click();
+            });
+        }
+
+        // --- ЗАВАНТАЖЕННЯ ТОВАРІВ ---
         async function loadProducts(category = 'all', searchQuery = '') {
             try {
                 let url = `https://avtozvuk-api.onrender.com/api/products?category=${category}`;
@@ -280,8 +306,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Завантажуємо товари при відкритті сторінки
         loadProducts(filterFromUrl, searchParam);
 
+        // --- ФІЛЬТРАЦІЯ ПО КАТЕГОРІЯХ (Кнопки) ---
         const categoryButtons = document.querySelectorAll('.category-card');
         categoryButtons.forEach(button => {
             if (button.getAttribute('data-category') === filterFromUrl) {
@@ -290,15 +318,18 @@ document.addEventListener('DOMContentLoaded', () => {
             button.addEventListener('click', function() {
                 categoryButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
+                
                 const selectedCategory = this.getAttribute('data-category');
                 catalogGrid.innerHTML = '<p style="text-align: center; width: 100%; color: #999;">Оновлюємо каталог...</p>';
-                if(searchInput) searchInput.value = '';
+                
+                // Очищаємо велике поле пошуку, якщо користувач клікнув на категорію
+                if(bigSearchInput) bigSearchInput.value = ''; 
+                
                 loadProducts(selectedCategory, '');
             });
         });
     }
 });
-
 
 // =========================================
 // 6. СТОРІНКА ОДНОГО ТОВАРУ (КАРУСЕЛЬ ТА КНОПКА КУПИТИ)
