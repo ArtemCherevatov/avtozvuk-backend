@@ -300,28 +300,34 @@ app.get('/api/cars/models', (req, res) => {
     });
 });
 app.get('/api/products/search-by-car', (req, res) => {
-    // Отримуємо марку і модель з запиту сайту (наприклад: ?make=Skoda&model=Octavia A5)
-    const { make, model } = req.query;
+    // Тепер ми дістаємо ще й категорію з URL сайту
+    const { make, model, category } = req.query;
 
     if (!make || !model) {
         return res.status(400).json({ error: 'Необхідно вказати марку та модель' });
     }
 
-    // Той самий магічний SQL-запит, що з'єднує 3 таблиці
-    const sql = `
+    // Базовий SQL-запит (тільки по машині)
+    let sql = `
         SELECT p.* FROM products p
         JOIN product_cars pc ON p.id = pc.product_id
         JOIN cars_db c ON pc.car_id = c.id
         WHERE c.make = ? AND c.model = ?
     `;
+    
+    let queryParams = [make, model];
 
-    db.query(sql, [make, model], (err, results) => {
+    // Якщо клієнт натиснув конкретну категорію (не "Всі товари"), додаємо її до пошуку!
+    if (category && category !== 'all') {
+        sql += ` AND p.category = ?`; // Припускаю, що колонка в базі називається category
+        queryParams.push(category);
+    }
+
+    db.query(sql, queryParams, (err, results) => {
         if (err) {
             console.error("MYSQL ERROR (search-by-car):", err);
-            return res.status(500).json({ error: 'Помилка пошуку в базі даних' });
+            return res.status(500).json({ error: 'Помилка пошуку товарів' });
         }
-        
-        // Відправляємо знайдені товари назад на сайт
         res.json(results);
     });
 });

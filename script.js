@@ -291,8 +291,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const carModel = urlParams.get('carModel');
 
                 // Якщо в URL є марка і модель, переписуємо посилання на нове API
+                // Якщо в URL є марка і модель, переписуємо посилання на нове API
                 if (carMake && carModel) {
-                    url = `https://avtozvuk-api.onrender.com/api/products/search-by-car?make=${encodeURIComponent(carMake)}&model=${encodeURIComponent(carModel)}`;
+                    // ДОДАНО: &category=${encodeURIComponent(category)}
+                    url = `https://avtozvuk-api.onrender.com/api/products/search-by-car?make=${encodeURIComponent(carMake)}&model=${encodeURIComponent(carModel)}&category=${encodeURIComponent(category)}`;
                 }
 
                 // 3. Завантажуємо товари за вибраним посиланням
@@ -750,7 +752,40 @@ const carSearchBtn = document.getElementById('carSearchBtn');
 
 if (makeSelect && modelSelect && carSearchBtn) {
     
-    // Завантажуємо марки з бази
+    // Читаємо те, що зараз в адресному рядку (щоб запам'ятати вибір)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlMake = urlParams.get('carMake');
+    const urlModel = urlParams.get('carModel');
+
+    // Окрема функція для завантаження моделей (винесли окремо для зручності)
+    async function loadModels(make, modelToSelect = null) {
+        modelSelect.innerHTML = '<option value="">Завантаження...</option>';
+        modelSelect.disabled = true;
+        
+        try {
+            const response = await fetch(`https://avtozvuk-api.onrender.com/api/cars/models?make=${encodeURIComponent(make)}`);
+            const models = await response.json();
+            
+            modelSelect.innerHTML = '<option value="">Оберіть модель...</option>';
+            modelSelect.disabled = false;
+            
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            });
+
+            // Якщо ми передали модель з URL - автоматично обираємо її у списку!
+            if (modelToSelect) {
+                modelSelect.value = modelToSelect;
+            }
+        } catch (error) {
+            modelSelect.innerHTML = '<option value="">Помилка завантаження</option>';
+        }
+    }
+
+    // Завантажуємо марки з бази при відкритті сторінки
     async function loadMakes() {
         try {
             const response = await fetch('https://avtozvuk-api.onrender.com/api/cars/makes');
@@ -762,50 +797,44 @@ if (makeSelect && modelSelect && carSearchBtn) {
                 option.textContent = make;
                 makeSelect.appendChild(option);
             });
+
+            // МАГІЯ ТУТ: Якщо в URL була марка, обираємо її і одразу вантажимо для неї моделі
+            if (urlMake) {
+                makeSelect.value = urlMake;
+                await loadModels(urlMake, urlModel);
+            }
+
         } catch (error) {
             console.error('Помилка завантаження марок:', error);
         }
     }
+    
+    // Запускаємо
     loadMakes();
 
-    // Завантажуємо моделі, коли обрали марку
-    makeSelect.addEventListener('change', async function() {
+    // Коли користувач сам клікає і змінює марку
+    makeSelect.addEventListener('change', function() {
         const selectedMake = this.value;
-        modelSelect.innerHTML = '<option value="">Оберіть модель...</option>';
-        
         if (selectedMake) {
-            modelSelect.disabled = true;
-            modelSelect.innerHTML = '<option value="">Завантаження...</option>';
-            
-            try {
-                const response = await fetch(`https://avtozvuk-api.onrender.com/api/cars/models?make=${encodeURIComponent(selectedMake)}`);
-                const models = await response.json();
-                
-                modelSelect.innerHTML = '<option value="">Оберіть модель...</option>';
-                modelSelect.disabled = false;
-                
-                models.forEach(model => {
-                    const option = document.createElement('option');
-                    option.value = model;
-                    option.textContent = model;
-                    modelSelect.appendChild(option);
-                });
-            } catch (error) {
-                modelSelect.innerHTML = '<option value="">Помилка завантаження</option>';
-            }
+            loadModels(selectedMake); // Вантажимо моделі без вибору по замовчуванню
         } else {
+            modelSelect.innerHTML = '<option value="">Спочатку оберіть марку</option>';
             modelSelect.disabled = true;
         }
     });
 
     // Клік по кнопці "Знайти"
+    // Клік по кнопці "Знайти"
     carSearchBtn.addEventListener('click', () => {
         const make = makeSelect.value;
         const model = modelSelect.value;
 
+        // Дістаємо поточну категорію з URL (якщо немає - беремо 'all')
+        const currentCategory = new URLSearchParams(window.location.search).get('category') || 'all';
+
         if (make && model) {
-            // Кидаємо користувача на сторінку каталогу з потрібними параметрами
-            window.location.href = `catalog.html?carMake=${encodeURIComponent(make)}&carModel=${encodeURIComponent(model)}`;
+            // Тепер ми передаємо в лінк і машину, і категорію!
+            window.location.href = `catalog.html?carMake=${encodeURIComponent(make)}&carModel=${encodeURIComponent(model)}&category=${encodeURIComponent(currentCategory)}`;
         } else {
             alert('Будь ласка, оберіть марку та модель авто!');
         }
