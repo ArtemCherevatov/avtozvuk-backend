@@ -281,12 +281,25 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- ЗАВАНТАЖЕННЯ ТОВАРІВ ---
         async function loadProducts(category = 'all', searchQuery = '') {
             try {
+                // 1. Стандартне посилання для категорій та текстового пошуку
                 let url = `https://avtozvuk-api.onrender.com/api/products?category=${category}`;
                 if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
 
+                // 2. НОВЕ: Перевіряємо, чи клієнт шукає товари для конкретного авто
+                const urlParams = new URLSearchParams(window.location.search);
+                const carMake = urlParams.get('carMake');
+                const carModel = urlParams.get('carModel');
+
+                // Якщо в URL є марка і модель, переписуємо посилання на нове API
+                if (carMake && carModel) {
+                    url = `https://avtozvuk-api.onrender.com/api/products/search-by-car?make=${encodeURIComponent(carMake)}&model=${encodeURIComponent(carModel)}`;
+                }
+
+                // 3. Завантажуємо товари за вибраним посиланням
                 const response = await fetch(url);
                 allProducts = await response.json();
 
+                // 4. Якщо нічого не знайдено
                 if (allProducts.length === 0) {
                     catalogGrid.innerHTML = '<p style="text-align: center; width: 100%; color: #999;">За вашим запитом нічого не знайдено.</p>';
                     const paginationDiv = document.getElementById('pagination');
@@ -294,7 +307,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                currentPage = 1; // Завжди починаємо з першої сторінки
+                // 5. Виводимо товари на екран (зберігаємо твою пагінацію)
+                currentPage = 1; 
                 displayPage(currentPage);
                 setupPagination();
 
@@ -726,4 +740,74 @@ if (window.location.href.includes('cart.html')) {
     if (closeModalBtn) closeModalBtn.addEventListener('click', () => checkoutModal.style.display = 'none');
 
     document.addEventListener('DOMContentLoaded', loadCart);
+}
+/* =========================================
+   ЛОГІКА ВИПАДАЮЧИХ СПИСКІВ (МАРКА/МОДЕЛЬ)
+   ========================================= */
+const makeSelect = document.getElementById('carMake');
+const modelSelect = document.getElementById('carModel');
+const carSearchBtn = document.getElementById('carSearchBtn');
+
+if (makeSelect && modelSelect && carSearchBtn) {
+    
+    // Завантажуємо марки з бази
+    async function loadMakes() {
+        try {
+            const response = await fetch('https://avtozvuk-api.onrender.com/api/cars/makes');
+            const makes = await response.json();
+            
+            makes.forEach(make => {
+                const option = document.createElement('option');
+                option.value = make;
+                option.textContent = make;
+                makeSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Помилка завантаження марок:', error);
+        }
+    }
+    loadMakes();
+
+    // Завантажуємо моделі, коли обрали марку
+    makeSelect.addEventListener('change', async function() {
+        const selectedMake = this.value;
+        modelSelect.innerHTML = '<option value="">Оберіть модель...</option>';
+        
+        if (selectedMake) {
+            modelSelect.disabled = true;
+            modelSelect.innerHTML = '<option value="">Завантаження...</option>';
+            
+            try {
+                const response = await fetch(`https://avtozvuk-api.onrender.com/api/cars/models?make=${encodeURIComponent(selectedMake)}`);
+                const models = await response.json();
+                
+                modelSelect.innerHTML = '<option value="">Оберіть модель...</option>';
+                modelSelect.disabled = false;
+                
+                models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    modelSelect.appendChild(option);
+                });
+            } catch (error) {
+                modelSelect.innerHTML = '<option value="">Помилка завантаження</option>';
+            }
+        } else {
+            modelSelect.disabled = true;
+        }
+    });
+
+    // Клік по кнопці "Знайти"
+    carSearchBtn.addEventListener('click', () => {
+        const make = makeSelect.value;
+        const model = modelSelect.value;
+
+        if (make && model) {
+            // Кидаємо користувача на сторінку каталогу з потрібними параметрами
+            window.location.href = `catalog.html?carMake=${encodeURIComponent(make)}&carModel=${encodeURIComponent(model)}`;
+        } else {
+            alert('Будь ласка, оберіть марку та модель авто!');
+        }
+    });
 }

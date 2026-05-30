@@ -279,6 +279,32 @@ app.post('/api/register', async (req, res) => {
         }
     });
 });
+app.get('/api/products/search-by-car', (req, res) => {
+    // Отримуємо марку і модель з запиту сайту (наприклад: ?make=Skoda&model=Octavia A5)
+    const { make, model } = req.query;
+
+    if (!make || !model) {
+        return res.status(400).json({ error: 'Необхідно вказати марку та модель' });
+    }
+
+    // Той самий магічний SQL-запит, що з'єднує 3 таблиці
+    const sql = `
+        SELECT p.* FROM products p
+        JOIN product_cars pc ON p.id = pc.product_id
+        JOIN cars_db c ON pc.car_id = c.id
+        WHERE c.make = ? AND c.model = ?
+    `;
+
+    db.query(sql, [make, model], (err, results) => {
+        if (err) {
+            console.error("MYSQL ERROR (search-by-car):", err);
+            return res.status(500).json({ error: 'Помилка пошуку в базі даних' });
+        }
+        
+        // Відправляємо знайдені товари назад на сайт
+        res.json(results);
+    });
+});
 app.listen(3001, () => {
     console.log('Сервер працює: https://avtozvuk-api.onrender.com');
 });
