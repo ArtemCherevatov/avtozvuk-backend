@@ -279,6 +279,26 @@ app.post('/api/register', async (req, res) => {
         }
     });
 });
+// 1. Отримати список марок (саме на нього сварився браузер - помилка 404)
+app.get('/api/cars/makes', (req, res) => {
+    const sql = 'SELECT DISTINCT make FROM cars_db ORDER BY make ASC';
+    db.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: 'Помилка БД (марки)' });
+        res.json(results.map(row => row.make)); 
+    });
+});
+
+// 2. Отримати список моделей для обраної марки
+app.get('/api/cars/models', (req, res) => {
+    const make = req.query.make;
+    if (!make) return res.status(400).json({ error: 'Не вказана марка' });
+
+    const sql = 'SELECT DISTINCT model FROM cars_db WHERE make = ? ORDER BY model ASC';
+    db.query(sql, [make], (err, results) => {
+        if (err) return res.status(500).json({ error: 'Помилка БД (моделі)' });
+        res.json(results.map(row => row.model));
+    });
+});
 app.get('/api/products/search-by-car', (req, res) => {
     // Отримуємо марку і модель з запиту сайту (наприклад: ?make=Skoda&model=Octavia A5)
     const { make, model } = req.query;
