@@ -25,18 +25,20 @@ const db = mysql.createPool({
 
 
 // --- API ТОВАРІВ ---
-app.get('/api/products', (req, res) => {
-    const category = req.query.category;
-    const search = req.query.search;
-    let sql = 'SELECT * FROM products WHERE 1=1';
-    let queryParams = []; 
+app.get('/api/products/:id', (req, res) => {
+    const id = req.params.id;
 
-    if (category && category !== 'all') { sql += ' AND category = ?'; queryParams.push(category); }
-    if (search) { sql += ' AND title LIKE ?'; queryParams.push(`%${search}%`); }
+    db.query('SELECT * FROM products WHERE id = ?', [id], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'DB error' });
+        }
 
-    db.query(sql, queryParams, (err, results) => {
-        if (err) return res.status(500).json({ error: 'Помилка отримання' });
-        res.json(results);
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Not found' });
+        }
+
+        res.json(results[0]);
     });
 });
 // --- API ДЛЯ ПОПУЛЯРНИХ ТОВАРІВ ---
@@ -353,32 +355,39 @@ app.get('/api/products/search-by-car', (req, res) => {
 // БЕЗПЕЧНИЙ МАРШРУТ ДЛЯ ВАРІАНТІВ
 // БЕЗПЕЧНИЙ МАРШРУТ ДЛЯ ВАРІАНТІВ (ОНОВЛЕНИЙ)
 app.get('/api/products/:id/variants', (req, res) => {
-    const mainId = req.params.id;
-    
-    // Крок 1: Знаходимо parent_id поточного товару
-    db.query('SELECT parent_id FROM products WHERE id = ?', [mainId], (err, results) => {
-        if (err) {
-            console.error("Помилка БД:", err);
-            return res.json([]);
-        }
+    const id = req.params.id;
 
-        if (results.length === 0) return res.json([]); // Товар не знайдено
-
-        // Визначаємо "головний" ID сім'ї: якщо це дитина, беремо ID її батька. Якщо батько - його власний ID.
-        const familyId = results[0].parent_id ? results[0].parent_id : mainId;
-
-        // Крок 2: Дістаємо всю сім'ю (батька і всіх дітей)
-        const sql = 'SELECT * FROM products WHERE id = ? OR parent_id = ? ORDER BY price ASC';
-        
-        db.query(sql, [familyId, familyId], (err, familyResults) => {
+    db.query(
+        'SELECT parent_id FROM products WHERE id = ?',
+        [id],
+        (err, rows) => {
             if (err) {
-                console.error("Помилка завантаження варіантів:", err);
+                console.error(err);
+                return res.status(500).json([]);
+            }
+
+            if (rows.length === 0) {
                 return res.json([]);
             }
-            res.json(familyResults);
-        });
-    });
+
+            const parentId = rows[0].parent_id || id;
+
+            db.query(
+                'SELECT * FROM products WHERE id = ? OR parent_id = ? ORDER BY price ASC',
+                [parentId, parentId],
+                (err2, items) => {
+                    if (err2) {
+                        console.error(err2);
+                        return res.status(500).json([]);
+                    }
+
+                    res.json(items);
+                }
+            );
+        }
+    );
 });
+
 app.listen(3001, () => {
     console.log('Сервер працює: https://avtozvuk-api.onrender.com');
 });
