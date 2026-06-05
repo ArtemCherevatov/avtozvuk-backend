@@ -224,7 +224,7 @@ if (window.location.href.includes('index.html') || window.location.pathname === 
 document.addEventListener('DOMContentLoaded', () => {
     
     // =========================================
-    // 1. ПОШУК У ШАПЦІ
+    // 1. ПОШУК У ШАПЦІ (Для Головної сторінки)
     // =========================================
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
@@ -240,40 +240,74 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================
-    // 2. КАСТОМНИЙ ФІЛЬТР ПО АВТОМОБІЛЮ
+    // 2. КАСТОМНИЙ ФІЛЬТР ПО АВТОМОБІЛЮ З ПОШУКОМ
     // =========================================
     const makeSelected = document.getElementById('makeSelected');
     const makeOptions = document.getElementById('makeOptions');
     const makeWrapper = document.getElementById('makeWrapper');
+    const makeList = document.getElementById('makeList');
 
     const modelSelected = document.getElementById('modelSelected');
     const modelOptions = document.getElementById('modelOptions');
     const modelWrapper = document.getElementById('modelWrapper');
+    const modelList = document.getElementById('modelList');
 
     const yearSelected = document.getElementById('yearSelected');
     const yearOptions = document.getElementById('yearOptions');
     const yearWrapper = document.getElementById('yearWrapper');
+    const yearList = document.getElementById('yearList');
 
     const carSearchBtn = document.getElementById('carSearchBtn');
 
-    // Змінні для зберігання того, що обрав користувач
     let currentMake = '';
     let currentModel = '';
     let currentYear = '';
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlMake = urlParams.get('carMake');
-    const urlModel = urlParams.get('carModel');
-    const urlYear = urlParams.get('carYear');
+    const initialUrlParams = new URLSearchParams(window.location.search);
+    const initialMake = initialUrlParams.get('carMake');
+    const initialModel = initialUrlParams.get('carModel');
+    const initialYear = initialUrlParams.get('carYear');
 
     if (makeSelected && modelSelected && yearSelected && carSearchBtn) {
 
-        // Логіка відкриття і закриття списків
-        function toggleDropdown(optionsElement) {
+        // Функція для пошуку всередині списків
+        function setupLiveSearch(inputId, listElement) {
+            const input = document.getElementById(inputId);
+            if(input && listElement) {
+                input.addEventListener('input', function() {
+                    const filter = this.value.toLowerCase();
+                    const options = listElement.querySelectorAll('.custom-option');
+                    options.forEach(opt => {
+                        if (opt.innerText.toLowerCase().includes(filter)) {
+                            opt.style.display = '';
+                        } else {
+                            opt.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        }
+
+        setupLiveSearch('makeSearch', makeList);
+        setupLiveSearch('modelSearch', modelList);
+        setupLiveSearch('yearSearch', yearList);
+
+        // Відкриття/закриття списків
+        function toggleDropdown(optionsElement, searchInputId) {
             document.querySelectorAll('.custom-options').forEach(opt => {
                 if (opt !== optionsElement) opt.classList.add('select-hide');
             });
             optionsElement.classList.toggle('select-hide');
+            
+            // Якщо список відкрили - очищаємо пошук і ставимо курсор
+            if (!optionsElement.classList.contains('select-hide')) {
+                const searchInput = document.getElementById(searchInputId);
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input')); // Показуємо всі елементи
+                    setTimeout(() => searchInput.focus(), 50); // Фокус на поле пошуку
+                }
+            }
         }
 
         document.addEventListener('click', function(e) {
@@ -283,18 +317,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         makeSelected.addEventListener('click', () => {
-            if (!makeWrapper.classList.contains('disabled')) toggleDropdown(makeOptions);
+            if (!makeWrapper.classList.contains('disabled')) toggleDropdown(makeOptions, 'makeSearch');
         });
         modelSelected.addEventListener('click', () => {
-            if (!modelWrapper.classList.contains('disabled')) toggleDropdown(modelOptions);
+            if (!modelWrapper.classList.contains('disabled')) toggleDropdown(modelOptions, 'modelSearch');
         });
         yearSelected.addEventListener('click', () => {
-            if (!yearWrapper.classList.contains('disabled')) toggleDropdown(yearOptions);
+            if (!yearWrapper.classList.contains('disabled')) toggleDropdown(yearOptions, 'yearSearch');
         });
 
-        // Створення пунктів меню
-        function populateOptions(optionsElement, selectedElement, wrapperElement, data, onSelectCallback) {
-            optionsElement.innerHTML = '';
+        function populateOptions(listElement, optionsContainer, selectedElement, wrapperElement, data, onSelectCallback) {
+            listElement.innerHTML = '';
             if (data.length === 0) {
                 selectedElement.innerText = 'Не знайдено';
                 wrapperElement.classList.add('disabled');
@@ -308,10 +341,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 div.innerText = item;
                 div.addEventListener('click', () => {
                     selectedElement.innerText = item;
-                    optionsElement.classList.add('select-hide');
+                    optionsContainer.classList.add('select-hide');
                     onSelectCallback(item);
                 });
-                optionsElement.appendChild(div);
+                listElement.appendChild(div);
             });
         }
 
@@ -325,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (years && years.length > 0) {
                     yearSelected.innerText = yearToSelect ? yearToSelect : 'Оберіть рік...';
                     currentYear = yearToSelect ? yearToSelect : '';
-                    populateOptions(yearOptions, yearSelected, yearWrapper, years, (selected) => {
+                    populateOptions(yearList, yearOptions, yearSelected, yearWrapper, years, (selected) => {
                         currentYear = selected;
                     });
                 } else {
@@ -353,13 +386,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 modelSelected.innerText = modelToSelect ? modelToSelect : 'Оберіть модель...';
                 currentModel = modelToSelect ? modelToSelect : '';
 
-                populateOptions(modelOptions, modelSelected, modelWrapper, models, (selected) => {
+                populateOptions(modelList, modelOptions, modelSelected, modelWrapper, models, (selected) => {
                     currentModel = selected;
                     loadYears(make, selected);
                 });
 
                 if (modelToSelect) {
-                    loadYears(make, modelToSelect, urlYear);
+                    loadYears(make, modelToSelect, initialYear);
                 }
             } catch (error) {
                 modelSelected.innerText = 'Помилка';
@@ -371,16 +404,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch('https://avtozvuk-api.onrender.com/api/cars/makes');
                 const makes = await response.json();
                 
-                makeSelected.innerText = urlMake ? urlMake : 'Оберіть марку...';
-                currentMake = urlMake ? urlMake : '';
+                makeSelected.innerText = initialMake ? initialMake : 'Оберіть марку...';
+                currentMake = initialMake ? initialMake : '';
 
-                populateOptions(makeOptions, makeSelected, makeWrapper, makes, (selected) => {
+                populateOptions(makeList, makeOptions, makeSelected, makeWrapper, makes, (selected) => {
                     currentMake = selected;
                     loadModels(selected);
                 });
 
-                if (urlMake) {
-                    loadModels(urlMake, urlModel);
+                if (initialMake) {
+                    loadModels(initialMake, initialModel);
                 }
             } catch (error) {
                 console.error('Помилка марок:', error);
@@ -390,12 +423,28 @@ document.addEventListener('DOMContentLoaded', () => {
         loadMakes();
 
         carSearchBtn.addEventListener('click', () => {
-            const currentCategory = new URLSearchParams(window.location.search).get('category') || 'all';
-
             if (currentMake && currentModel) {
-                let newLoc = `catalog.html?carMake=${encodeURIComponent(currentMake)}&carModel=${encodeURIComponent(currentModel)}&category=${encodeURIComponent(currentCategory)}`;
-                if (currentYear) newLoc += `&carYear=${encodeURIComponent(currentYear)}`;
-                window.location.href = newLoc;
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('carMake', currentMake);
+                newUrl.searchParams.set('carModel', currentModel);
+                
+                if (currentYear) {
+                    newUrl.searchParams.set('carYear', currentYear);
+                } else {
+                    newUrl.searchParams.delete('carYear');
+                }
+                
+                window.history.pushState({}, '', newUrl);
+
+                const currentCategory = newUrl.searchParams.get('category') || 'all';
+                const currentSearch = newUrl.searchParams.get('search') || '';
+
+                const catalogGrid = document.getElementById('catalogGrid');
+                if (catalogGrid) catalogGrid.innerHTML = '<p style="text-align: center; width: 100%; color: #999;">Шукаємо деталі для авто...</p>';
+                
+                if (typeof window.loadCatalogProducts === 'function') {
+                    window.loadCatalogProducts(currentCategory, currentSearch);
+                }
             } else {
                 alert('Будь ласка, оберіть марку та модель авто!');
             }
@@ -409,25 +458,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const catalogGrid = document.getElementById('catalogGrid');
         if (!catalogGrid) return;
 
-        const searchParam = urlParams.get('search') || '';
-        const filterFromUrl = urlParams.get('category') || 'all';
-
         const bigSearchInput = document.getElementById('big-catalog-search');
         const bigSearchBtn = document.getElementById('big-search-btn');
 
-        if (searchParam && bigSearchInput) bigSearchInput.value = searchParam;
+        const startSearchParam = new URLSearchParams(window.location.search).get('search') || '';
+        if (startSearchParam && bigSearchInput) bigSearchInput.value = startSearchParam;
 
         if (bigSearchBtn && bigSearchInput) {
             bigSearchBtn.addEventListener('click', () => {
                 const query = bigSearchInput.value.trim();
-                let newUrl = `catalog.html?search=${encodeURIComponent(query)}`;
-                if (urlMake && urlModel) {
-                    newUrl += `&carMake=${encodeURIComponent(urlMake)}&carModel=${encodeURIComponent(urlModel)}`;
-                    if (urlYear) newUrl += `&carYear=${encodeURIComponent(urlYear)}`;
+                const newUrl = new URL(window.location);
+                
+                if (query) {
+                    newUrl.searchParams.set('search', query);
+                } else {
+                    newUrl.searchParams.delete('search');
                 }
-                const currentCategory = new URLSearchParams(window.location.search).get('category') || 'all';
-                if (currentCategory !== 'all') newUrl += `&category=${encodeURIComponent(currentCategory)}`;
-                window.location.href = newUrl;
+                
+                window.history.pushState({}, '', newUrl);
+
+                const currentCategory = newUrl.searchParams.get('category') || 'all';
+                catalogGrid.innerHTML = '<p style="text-align: center; width: 100%; color: #999;">Шукаємо товари...</p>';
+                window.loadCatalogProducts(currentCategory, query);
             });
             bigSearchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') bigSearchBtn.click();
@@ -438,14 +490,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const itemsPerPage = 20; 
         let currentPage = 1; 
 
-        async function loadProducts(category = 'all', searchQuery = '') {
+        window.loadCatalogProducts = async function(category = 'all', searchQuery = '') {
             try {
-                let url = `https://avtozvuk-api.onrender.com/api/products?category=${category}`;
+                const freshParams = new URLSearchParams(window.location.search);
+                const make = freshParams.get('carMake');
+                const model = freshParams.get('carModel');
+                const year = freshParams.get('carYear');
+
+                let url = `https://avtozvuk-api.onrender.com/api/products?category=${encodeURIComponent(category)}`;
                 if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
 
-                if (urlMake && urlModel) {
-                    url = `https://avtozvuk-api.onrender.com/api/products/search-by-car?make=${encodeURIComponent(urlMake)}&model=${encodeURIComponent(urlModel)}`;
-                    if (urlYear) url += `&year=${encodeURIComponent(urlYear)}`;
+                if (make && model) {
+                    url = `https://avtozvuk-api.onrender.com/api/products/search-by-car?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
+                    if (year) url += `&year=${encodeURIComponent(year)}`;
                     if (category && category !== 'all') url += `&category=${encodeURIComponent(category)}`;
                 }
 
@@ -466,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 catalogGrid.innerHTML = '<p>Не вдалося завантажити товари.</p>';
             }
-        }
+        };
 
         function displayPage(page) {
             catalogGrid.innerHTML = '';
@@ -495,7 +552,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const pageCount = Math.ceil(allProducts.length / itemsPerPage);
             if (pageCount <= 1) return;
 
-            for (let i = 1; i <= pageCount; i++) {
+            const scrollToTop = () => {
+                const bigSearch = document.querySelector('.big-search-wrapper') || document.getElementById('catalogGrid');
+                if (bigSearch) bigSearch.scrollIntoView({ behavior: 'smooth' });
+            };
+
+            // --- КНОПКА "НАЗАД" ---
+            const prevBtn = document.createElement('button');
+            prevBtn.classList.add('page-btn');
+            prevBtn.innerHTML = '&laquo;';
+            if (currentPage === 1) {
+                prevBtn.disabled = true;
+                prevBtn.style.opacity = '0.5';
+                prevBtn.style.cursor = 'not-allowed';
+            }
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayPage(currentPage);
+                    setupPagination();
+                    scrollToTop();
+                }
+            });
+            paginationDiv.appendChild(prevBtn);
+
+
+            // --- РОЗУМНА ЛОГІКА ЦИФР ---
+            // Скільки кнопок малювати загалом (наприклад, 5)
+            const maxVisibleButtons = 5; 
+            
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisibleButtons / 2));
+            let endPage = Math.min(pageCount, startPage + maxVisibleButtons - 1);
+
+            // Коректуємо старт, якщо ми біля кінця (щоб завжди було 5 кнопок)
+            if (endPage - startPage + 1 < maxVisibleButtons) {
+                startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
                 const btn = document.createElement('button');
                 btn.classList.add('page-btn');
                 if (i === currentPage) btn.classList.add('active');
@@ -505,19 +599,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentPage = i;
                     displayPage(currentPage);
                     setupPagination(); 
-                    const bigSearch = document.querySelector('.big-search-wrapper') || document.getElementById('catalogGrid');
-                    if (bigSearch) bigSearch.scrollIntoView({ behavior: 'smooth' });
+                    scrollToTop();
                 });
 
                 paginationDiv.appendChild(btn);
             }
+
+
+            // --- КНОПКА "ВПЕРЕД" ---
+            const nextBtn = document.createElement('button');
+            nextBtn.classList.add('page-btn');
+            nextBtn.innerHTML = '&raquo;';
+            if (currentPage === pageCount) {
+                nextBtn.disabled = true;
+                nextBtn.style.opacity = '0.5';
+                nextBtn.style.cursor = 'not-allowed';
+            }
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < pageCount) {
+                    currentPage++;
+                    displayPage(currentPage);
+                    setupPagination();
+                    scrollToTop();
+                }
+            });
+            paginationDiv.appendChild(nextBtn);
         }
 
-        loadProducts(filterFromUrl, searchParam);
-
         const categoryButtons = document.querySelectorAll('.category-card');
+        const startCategoryParam = new URLSearchParams(window.location.search).get('category') || 'all';
+        
         categoryButtons.forEach(button => {
-            if (button.getAttribute('data-category') === filterFromUrl) {
+            if (button.getAttribute('data-category') === startCategoryParam) {
                 button.classList.add('active');
             }
             button.addEventListener('click', function() {
@@ -530,11 +643,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const newUrl = new URL(window.location);
                 newUrl.searchParams.set('category', selectedCategory);
+                newUrl.searchParams.delete('search'); 
                 window.history.pushState({}, '', newUrl);
 
-                loadProducts(selectedCategory, '');
+                window.loadCatalogProducts(selectedCategory, '');
             });
         });
+
+        window.loadCatalogProducts(startCategoryParam, startSearchParam);
     }
 });
 

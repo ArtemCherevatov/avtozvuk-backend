@@ -6,9 +6,34 @@
     font-family: 'Montserrat', sans-serif;
 }
 body {
-    background-color: #1a1a1d;
-    color: #ffffff;
-    line-height: 1.6;
+    font-family: 'Montserrat', sans-serif;
+}
+html {
+    scrollbar-gutter: stable; 
+    scrollbar-width: thin; /* Робить скролбар тоншим */
+    scrollbar-color: #444 #1e1e24; /* Перший колір - повзунок, другий - фон */
+}
+/* =========================================
+   КАСТОМНИЙ ГОЛОВНИЙ СКРОЛБАР (Для всієї сторінки)
+   ========================================= */
+
+/* Налаштування для Chrome, Safari, Edge, Opera */
+::-webkit-scrollbar {
+    width: 10px; /* Ширина скролбару (не робіть занадто вузьким, щоб було зручно клікати) */
+}
+
+::-webkit-scrollbar-track {
+    background: #1e1e24; /* Темний колір фону під повзунком (колір вашої шапки) */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #444; /* Колір самого повзунка */
+    border-radius: 6px; /* Заокруглені краї */
+    border: 2px solid #1e1e24; /* Створює ефект "відступу" від країв */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #3b82f6; /* Фірмовий синій колір вашого сайту при наведенні мишки */
 }
 a {
     text-decoration: none;
@@ -83,6 +108,21 @@ header .container {
 .nav-menu li a:hover {
     color: #ffffff; /* Текст стає/лишається білим */
     background-color: #3b82f6; /* Контейнер заливається фірмовим синім кольором */
+}
+/* Цей стиль буде активний лише на сторінці каталогу */
+.catalog-page .nav-menu {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    font-size: 14px; /* Збільшуємо відстань саме тут */
+}
+
+/* Якщо вкладки все ще здаються затісними, можна додати відступи до самих посилань */
+.catalog-page .nav-menu li a {
+    display: block; /* Робить посилання блоком */
+    padding: 15px 25px; /* Розширюємо зону кліку: 10px зверху/знизу, 15px по боках */
+    border-radius: 5px; /* Заокруглюємо кути для краси */
+    transition: all 0.3s ease;
 }
 .header-actions {
     display: flex;
@@ -1831,51 +1871,63 @@ input[type="checkbox"] {
     border-color: #3b82f6;
 }
 
+/* Оновлений блок, прибираємо звідси скрол */
 .custom-options {
     position: absolute;
-    top: 100%; /* Завжди випадає рівно вниз */
+    top: 100%;
     left: 0;
     right: 0;
     margin-top: 5px;
     background-color: #2b2b33;
     border: 1px solid #333;
     border-radius: 6px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.7);
-    z-index: 1000; /* Щоб перекривав усі товари внизу */
-    
-    /* ВИСОТА НА 7 ЕЛЕМЕНТІВ (приблизно 40px на рядок) */
-    max-height: 280px; 
-    overflow-y: auto;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.9);
+    z-index: 9999;
+    overflow: hidden; /* Щоб пошук не вилазив за краї */
+    flex-direction: column;
 }
-
-.select-hide {
-    display: none;
-}
-
-.custom-option {
-    padding: 10px 15px;
-    color: #fff;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
 .custom-option:hover {
     background-color: #3b82f6;
 }
+.select-hide {
+    display: none !important;
+}
+/* Новий блок: Поле пошуку всередині списку */
+.dropdown-search {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: #1e1e24;
+    color: #fff;
+    border: none;
+    border-bottom: 1px solid #444;
+    outline: none;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    border-radius: 6px 6px 0 0;
+}
 
-/* Кастомізація повзунка скролу під ваш дизайн */
-.custom-options::-webkit-scrollbar {
+.dropdown-search:focus {
+    background-color: #25252d;
+}
+
+/* Новий блок: Сам список, який буде скролитися */
+.options-list {
+    max-height: 117px; 
+    overflow-y: auto;
+}
+
+/* Оновлений скролбар (змініть custom-options на options-list) */
+.options-list::-webkit-scrollbar {
     width: 6px;
 }
-.custom-options::-webkit-scrollbar-track {
+.options-list::-webkit-scrollbar-track {
     background: #1e1e24;
-    border-radius: 6px;
 }
-.custom-options::-webkit-scrollbar-thumb {
+.options-list::-webkit-scrollbar-thumb {
     background: #555;
     border-radius: 6px;
 }
-.custom-options::-webkit-scrollbar-thumb:hover {
+.options-list::-webkit-scrollbar-thumb:hover {
     background: #3b82f6;
 }
 /* Адаптивність для мобільних телефонів */

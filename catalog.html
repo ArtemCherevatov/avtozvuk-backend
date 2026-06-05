@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="favicon.png">
 </head>
-<body>
+<body class="catalog-page">
 
     <header>
         <div class="container header-inner">
@@ -40,7 +40,7 @@
                     <a href="cart.html" class="cart-btn">
                         🛒 <span id="cartCount">0</span>
                     </a>
-                    <strong>+38 067 123 4567</strong>
+                    <a href="tel:+380671234567" class="phone-number"><strong>+38 (067) 123-45-67</strong></a>
                 </div>
             </div>
         </div>
@@ -66,17 +66,26 @@
                 
                 <div class="custom-select-wrapper" id="makeWrapper">
                     <div class="custom-select" id="makeSelected">Оберіть марку...</div>
-                    <div class="custom-options select-hide" id="makeOptions"></div>
+                    <div class="custom-options select-hide" id="makeOptions">
+                        <input type="text" class="dropdown-search" id="makeSearch" placeholder="Пошук марки...">
+                        <div class="options-list" id="makeList"></div>
+                    </div>
                 </div>
 
                 <div class="custom-select-wrapper disabled" id="modelWrapper">
                     <div class="custom-select" id="modelSelected">Спочатку оберіть марку</div>
-                    <div class="custom-options select-hide" id="modelOptions"></div>
+                    <div class="custom-options select-hide" id="modelOptions">
+                        <input type="text" class="dropdown-search" id="modelSearch" placeholder="Пошук моделі...">
+                        <div class="options-list" id="modelList"></div>
+                    </div>
                 </div>
 
                 <div class="custom-select-wrapper disabled" id="yearWrapper">
                     <div class="custom-select" id="yearSelected">Спочатку оберіть модель</div>
-                    <div class="custom-options select-hide" id="yearOptions"></div>
+                    <div class="custom-options select-hide" id="yearOptions">
+                        <input type="text" class="dropdown-search" id="yearSearch" placeholder="Пошук року...">
+                        <div class="options-list" id="yearList"></div>
+                    </div>
                 </div>
 
                 <button id="carSearchBtn" class="btn-search-car">Знайти</button>
