@@ -25,20 +25,18 @@ const db = mysql.createPool({
 
 
 // --- API ТОВАРІВ ---
-app.get('/api/products/:id', (req, res) => {
-    const id = req.params.id;
+app.get('/api/products', (req, res) => {
+    const category = req.query.category;
+    const search = req.query.search;
+    let sql = 'SELECT * FROM products WHERE 1=1';
+    let queryParams = []; 
 
-    db.query('SELECT * FROM products WHERE id = ?', [id], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: 'DB error' });
-        }
+    if (category && category !== 'all') { sql += ' AND category = ?'; queryParams.push(category); }
+    if (search) { sql += ' AND title LIKE ?'; queryParams.push(`%${search}%`); }
 
-        if (results.length === 0) {
-            return res.status(404).json({ error: 'Not found' });
-        }
-
-        res.json(results[0]);
+    db.query(sql, queryParams, (err, results) => {
+        if (err) return res.status(500).json({ error: 'Помилка отримання' });
+        res.json(results);
     });
 });
 // --- API ДЛЯ ПОПУЛЯРНИХ ТОВАРІВ ---
@@ -58,27 +56,7 @@ app.get('/api/popular-products', (req, res) => {
         res.json(results);
     });
 });
-app.get('/api/product/:id', (req, res) => {
-    db.query('SELECT * FROM products WHERE id = ?', [req.params.id], (err, results) => {
-        if (err || results.length === 0) return res.status(404).json({ error: 'Не знайдено' });
-        const product = results[0];
-        let galleryArray = [];
-        if (product.gallery) {
-            const folderPath = product.gallery.trim();
-            const absoluteFolderPath = path.join(__dirname, folderPath);
-            try {
-                if (fs.existsSync(absoluteFolderPath)) {
-                    galleryArray = fs.readdirSync(absoluteFolderPath)
-                        .filter(f => f.match(/\.(jpg|jpeg|png|webp|gif|mp4|mov|avi|mkv)$/i))
-                        .map(f => `${folderPath}/${f}`);
-                }
-            } catch (err) { console.error(err); }
-        }
-        if (product.image_url && !galleryArray.includes(product.image_url)) galleryArray.unshift(product.image_url);
-        product.gallery_images = galleryArray;
-        res.json(product);
-    });
-});
+
 
 // --- КОШИК ---
 app.post('/api/cart', (req, res) => {
@@ -352,42 +330,28 @@ app.get('/api/products/search-by-car', (req, res) => {
         res.json(results);
     });
 });
-// БЕЗПЕЧНИЙ МАРШРУТ ДЛЯ ВАРІАНТІВ
-// БЕЗПЕЧНИЙ МАРШРУТ ДЛЯ ВАРІАНТІВ (ОНОВЛЕНИЙ)
-app.get('/api/products/:id/variants', (req, res) => {
-    const id = req.params.id;
-
-    db.query(
-        'SELECT parent_id FROM products WHERE id = ?',
-        [id],
-        (err, rows) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json([]);
-            }
-
-            if (rows.length === 0) {
-                return res.json([]);
-            }
-
-            const parentId = rows[0].parent_id || id;
-
-            db.query(
-                'SELECT * FROM products WHERE id = ? OR parent_id = ? ORDER BY price ASC',
-                [parentId, parentId],
-                (err2, items) => {
-                    if (err2) {
-                        console.error(err2);
-                        return res.status(500).json([]);
-                    }
-
-                    res.json(items);
+// Додай цей шматок коду в server.js
+app.get('/api/products/:id', (req, res) => {
+    db.query('SELECT * FROM products WHERE id = ?', [req.params.id], (err, results) => {
+        if (err || results.length === 0) return res.status(404).json({ error: 'Не знайдено' });
+        const product = results[0];
+        let galleryArray = [];
+        if (product.gallery) {
+            const folderPath = product.gallery.trim();
+            const absoluteFolderPath = path.join(__dirname, folderPath);
+            try {
+                if (fs.existsSync(absoluteFolderPath)) {
+                    galleryArray = fs.readdirSync(absoluteFolderPath)
+                        .filter(f => f.match(/\.(jpg|jpeg|png|webp|gif|mp4|mov|avi|mkv)$/i))
+                        .map(f => `${folderPath}/${f}`);
                 }
-            );
+            } catch (err) { console.error(err); }
         }
-    );
+        if (product.image_url && !galleryArray.includes(product.image_url)) galleryArray.unshift(product.image_url);
+        product.gallery_images = galleryArray;
+        res.json(product);
+    });
 });
-
 app.listen(3001, () => {
     console.log('Сервер працює: https://avtozvuk-api.onrender.com');
 });
