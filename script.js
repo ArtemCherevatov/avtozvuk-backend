@@ -244,6 +244,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================
     // 2. ЛОГІКА СТОРІНКИ КАТАЛОГУ
     // =========================================
+    // =========================================
+    // 2. ЛОГІКА СТОРІНКИ КАТАЛОГУ
+    // =========================================
     if (window.location.href.includes('catalog.html')) {
         const catalogGrid = document.getElementById('catalogGrid');
         if (!catalogGrid) return;
@@ -251,22 +254,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const searchParam = urlParams.get('search') || '';
         const filterFromUrl = urlParams.get('filter') || 'all';
+        
+        // Читаємо дані автомобіля з URL
+        const urlMake = urlParams.get('carMake');
+        const urlModel = urlParams.get('carModel');
+        const urlYear = urlParams.get('carYear');
 
         // --- НОВИЙ ВЕЛИКИЙ ПОШУК ---
         const bigSearchInput = document.getElementById('big-catalog-search');
         const bigSearchBtn = document.getElementById('big-search-btn');
 
-        // Якщо в URL є пошуковий запит - вставляємо його у велике поле
         if (searchParam && bigSearchInput) {
             bigSearchInput.value = searchParam;
         }
 
-        // Обробка кліку по великій кнопці "Знайти"
         if (bigSearchBtn && bigSearchInput) {
             bigSearchBtn.addEventListener('click', () => {
                 const query = bigSearchInput.value.trim();
-                // Перезавантажуємо сторінку з новим пошуком
-                window.location.href = `catalog.html?search=${encodeURIComponent(query)}`;
+                // Зберігаємо поточну машину та категорію при текстовому пошуку
+                let newUrl = `catalog.html?search=${encodeURIComponent(query)}`;
+                if (urlMake && urlModel) {
+                    newUrl += `&carMake=${encodeURIComponent(urlMake)}&carModel=${encodeURIComponent(urlModel)}`;
+                    if (urlYear) newUrl += `&carYear=${encodeURIComponent(urlYear)}`;
+                }
+                const currentCategory = new URLSearchParams(window.location.search).get('category') || 'all';
+                if (currentCategory !== 'all') newUrl += `&category=${encodeURIComponent(currentCategory)}`;
+                
+                window.location.href = newUrl;
             });
             bigSearchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') bigSearchBtn.click();
@@ -274,30 +288,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // --- ПАГІНАЦІЯ: Змінні ---
-        let allProducts = []; // Тут зберігаємо всі завантажені товари
-        const itemsPerPage = 20; // Кількість товарів на сторінці
-        let currentPage = 1; // Поточна сторінка
+        let allProducts = []; 
+        const itemsPerPage = 20; 
+        let currentPage = 1; 
 
         // --- ЗАВАНТАЖЕННЯ ТОВАРІВ ---
         async function loadProducts(category = 'all', searchQuery = '') {
             try {
-                // 1. Стандартне посилання для категорій та текстового пошуку
+                // 1. Стандартне посилання
                 let url = `https://avtozvuk-api.onrender.com/api/products?category=${category}`;
                 if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
 
-                // 2. НОВЕ: Перевіряємо, чи клієнт шукає товари для конкретного авто
-                const urlParams = new URLSearchParams(window.location.search);
-                const carMake = urlParams.get('carMake');
-                const carModel = urlParams.get('carModel');
-
-                // Якщо в URL є марка і модель, переписуємо посилання на нове API
-                // Якщо в URL є марка і модель, переписуємо посилання на нове API
-                if (carMake && carModel) {
-                    // ДОДАНО: &category=${encodeURIComponent(category)}
-                    url = `https://avtozvuk-api.onrender.com/api/products/search-by-car?make=${encodeURIComponent(carMake)}&model=${encodeURIComponent(carModel)}&category=${encodeURIComponent(category)}`;
+                // 2. Якщо клієнт шукає по машині - переписуємо URL
+                if (urlMake && urlModel) {
+                    url = `https://avtozvuk-api.onrender.com/api/products/search-by-car?make=${encodeURIComponent(urlMake)}&model=${encodeURIComponent(urlModel)}`;
+                    
+                    if (urlYear) {
+                        url += `&year=${encodeURIComponent(urlYear)}`;
+                    }
+                    if (category && category !== 'all') {
+                        url += `&category=${encodeURIComponent(category)}`;
+                    }
                 }
 
-                // 3. Завантажуємо товари за вибраним посиланням
+                // 3. Завантажуємо товари
                 const response = await fetch(url);
                 allProducts = await response.json();
 
@@ -305,11 +319,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (allProducts.length === 0) {
                     catalogGrid.innerHTML = '<p style="text-align: center; width: 100%; color: #999;">За вашим запитом нічого не знайдено.</p>';
                     const paginationDiv = document.getElementById('pagination');
-                    if (paginationDiv) paginationDiv.innerHTML = ''; // Ховаємо пагінацію
+                    if (paginationDiv) paginationDiv.innerHTML = '';
                     return;
                 }
 
-                // 5. Виводимо товари на екран (зберігаємо твою пагінацію)
+                // 5. Виводимо товари
                 currentPage = 1; 
                 displayPage(currentPage);
                 setupPagination();
@@ -348,20 +362,19 @@ document.addEventListener('DOMContentLoaded', () => {
             paginationDiv.innerHTML = '';
 
             const pageCount = Math.ceil(allProducts.length / itemsPerPage);
-            if (pageCount <= 1) return; // Не малюємо кнопки, якщо сторінка лише одна
+            if (pageCount <= 1) return;
 
             for (let i = 1; i <= pageCount; i++) {
                 const btn = document.createElement('button');
                 btn.classList.add('page-btn');
-                if (i === currentPage) btn.classList.add('active'); // Синя кнопка для поточної
+                if (i === currentPage) btn.classList.add('active');
                 btn.innerText = i;
 
                 btn.addEventListener('click', () => {
                     currentPage = i;
                     displayPage(currentPage);
-                    setupPagination(); // Оновлюємо колір кнопок
+                    setupPagination(); 
                     
-                    // Плавна прокрутка вгору при натисканні на нову сторінку
                     const bigSearch = document.querySelector('.big-search-wrapper') || document.getElementById('catalogGrid');
                     if (bigSearch) {
                         bigSearch.scrollIntoView({ behavior: 'smooth' });
@@ -375,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Завантажуємо товари при відкритті сторінки
         loadProducts(filterFromUrl, searchParam);
 
-        // --- ФІЛЬТРАЦІЯ ПО КАТЕГОРІЯХ (Кнопки "Магнітоли", "Камери") ---
+        // --- ФІЛЬТРАЦІЯ ПО КАТЕГОРІЯХ ---
         const categoryButtons = document.querySelectorAll('.category-card');
         categoryButtons.forEach(button => {
             if (button.getAttribute('data-category') === filterFromUrl) {
@@ -388,12 +401,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const selectedCategory = this.getAttribute('data-category');
                 catalogGrid.innerHTML = '<p style="text-align: center; width: 100%; color: #999;">Оновлюємо каталог...</p>';
                 
-                // Очищаємо велике поле пошуку, якщо користувач клікнув на категорію
                 if(bigSearchInput) bigSearchInput.value = ''; 
                 
-                loadProducts(selectedCategory, '');
+                // Переходимо на нову сторінку зі збереженням машини!
+                let newUrl = `catalog.html?category=${encodeURIComponent(selectedCategory)}`;
+                if (urlMake && urlModel) {
+                    newUrl += `&carMake=${encodeURIComponent(urlMake)}&carModel=${encodeURIComponent(urlModel)}`;
+                    if (urlYear) newUrl += `&carYear=${encodeURIComponent(urlYear)}`;
+                }
+                window.location.href = newUrl;
             });
         });
+
     }
 });
 

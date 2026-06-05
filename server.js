@@ -331,6 +331,56 @@ app.get('/api/products/search-by-car', (req, res) => {
         res.json(results);
     });
 });
+// 1. Отримати список років для конкретної машини
+app.get('/api/cars/years', (req, res) => {
+    const { make, model } = req.query;
+    if (!make || !model) return res.status(400).json({ error: 'Не вказана марка або модель' });
+
+    // Дістаємо готові рядки років з бази (унікальні)
+    const sql = 'SELECT DISTINCT years FROM cars_db WHERE make = ? AND model = ? AND years IS NOT NULL';
+    
+    db.query(sql, [make, model], (err, results) => {
+        if (err) return res.status(500).json({ error: 'Помилка БД' });
+        res.json(results.map(row => row.years));
+    });
+});
+
+// 2. Оновлений пошук товарів (тепер з роком)
+app.get('/api/products/search-by-car', (req, res) => {
+    // Приймаємо рік (year) з запиту
+    const { make, model, year, category } = req.query;
+
+    if (!make || !model) {
+        return res.status(400).json({ error: 'Необхідно вказати марку та модель' });
+    }
+
+    let sql = `
+        SELECT p.* FROM products p
+        JOIN product_cars pc ON p.id = pc.product_id
+        JOIN cars_db c ON pc.car_id = c.id
+        WHERE c.make = ? AND c.model = ?
+    `;
+    let queryParams = [make, model];
+
+    // Якщо користувач обрав рік, додаємо це до фільтру
+    if (year) {
+        sql += ` AND c.years = ?`;
+        queryParams.push(year);
+    }
+
+    if (category && category !== 'all') {
+        sql += ` AND p.category = ?`;
+        queryParams.push(category);
+    }
+
+    db.query(sql, queryParams, (err, results) => {
+        if (err) {
+            console.error("MYSQL ERROR:", err);
+            return res.status(500).json({ error: 'Помилка пошуку товарів' });
+        }
+        res.json(results);
+    });
+});
 app.listen(3001, () => {
     console.log('Сервер працює: https://avtozvuk-api.onrender.com');
 });
