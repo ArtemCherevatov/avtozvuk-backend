@@ -64,16 +64,20 @@
             <h3 class="filter-title">Підбір товарів для вашого авто</h3>
             <div class="car-filter-container">
                 
-                <select id="carMake" class="car-select">
-                    <option value="">Оберіть марку...</option>
-                </select>
+                <div class="custom-select-wrapper" id="makeWrapper">
+                    <div class="custom-select" id="makeSelected">Оберіть марку...</div>
+                    <div class="custom-options select-hide" id="makeOptions"></div>
+                </div>
 
-                <select id="carModel" class="car-select" disabled>
-                    <option value="">Спочатку оберіть марку</option>
-                </select>
-                <select id="carYear" class="car-select" disabled>
-                    <option value="">Спочатку оберіть модель</option>
-                </select>
+                <div class="custom-select-wrapper disabled" id="modelWrapper">
+                    <div class="custom-select" id="modelSelected">Спочатку оберіть марку</div>
+                    <div class="custom-options select-hide" id="modelOptions"></div>
+                </div>
+
+                <div class="custom-select-wrapper disabled" id="yearWrapper">
+                    <div class="custom-select" id="yearSelected">Спочатку оберіть модель</div>
+                    <div class="custom-options select-hide" id="yearOptions"></div>
+                </div>
 
                 <button id="carSearchBtn" class="btn-search-car">Знайти</button>
                 

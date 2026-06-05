@@ -299,38 +299,7 @@ app.get('/api/cars/models', (req, res) => {
         res.json(results.map(row => row.model));
     });
 });
-app.get('/api/products/search-by-car', (req, res) => {
-    // Тепер ми дістаємо ще й категорію з URL сайту
-    const { make, model, category } = req.query;
 
-    if (!make || !model) {
-        return res.status(400).json({ error: 'Необхідно вказати марку та модель' });
-    }
-
-    // Базовий SQL-запит (тільки по машині)
-    let sql = `
-        SELECT p.* FROM products p
-        JOIN product_cars pc ON p.id = pc.product_id
-        JOIN cars_db c ON pc.car_id = c.id
-        WHERE c.make = ? AND c.model = ?
-    `;
-    
-    let queryParams = [make, model];
-
-    // Якщо клієнт натиснув конкретну категорію (не "Всі товари"), додаємо її до пошуку!
-    if (category && category !== 'all') {
-        sql += ` AND p.category = ?`; // Припускаю, що колонка в базі називається category
-        queryParams.push(category);
-    }
-
-    db.query(sql, queryParams, (err, results) => {
-        if (err) {
-            console.error("MYSQL ERROR (search-by-car):", err);
-            return res.status(500).json({ error: 'Помилка пошуку товарів' });
-        }
-        res.json(results);
-    });
-});
 // 1. Отримати список років для конкретної машини
 app.get('/api/cars/years', (req, res) => {
     const { make, model } = req.query;
