@@ -350,6 +350,22 @@ app.get('/api/products/search-by-car', (req, res) => {
         res.json(results);
     });
 });
+// БЕЗПЕЧНИЙ МАРШРУТ ДЛЯ ВАРІАНТІВ
+app.get('/api/products/:id/variants', (req, res) => {
+    const mainId = req.params.id;
+    
+    // Шукаємо головний товар (id) ТА всі його варіанти (parent_id)
+    const sql = 'SELECT * FROM products WHERE id = ? OR parent_id = ? ORDER BY price ASC';
+    
+    db.query(sql, [mainId, mainId], (err, results) => {
+        if (err) {
+            console.error("Помилка завантаження варіантів:", err);
+            // Повертаємо порожній масив у разі помилки, щоб не ламати фронтенд
+            return res.json([]); 
+        }
+        res.json(results);
+    });
+});
 app.listen(3001, () => {
     console.log('Сервер працює: https://avtozvuk-api.onrender.com');
 });
