@@ -351,19 +351,32 @@ app.get('/api/products/search-by-car', (req, res) => {
     });
 });
 // БЕЗПЕЧНИЙ МАРШРУТ ДЛЯ ВАРІАНТІВ
+// БЕЗПЕЧНИЙ МАРШРУТ ДЛЯ ВАРІАНТІВ (ОНОВЛЕНИЙ)
 app.get('/api/products/:id/variants', (req, res) => {
     const mainId = req.params.id;
     
-    // Шукаємо головний товар (id) ТА всі його варіанти (parent_id)
-    const sql = 'SELECT * FROM products WHERE id = ? OR parent_id = ? ORDER BY price ASC';
-    
-    db.query(sql, [mainId, mainId], (err, results) => {
+    // Крок 1: Знаходимо parent_id поточного товару
+    db.query('SELECT parent_id FROM products WHERE id = ?', [mainId], (err, results) => {
         if (err) {
-            console.error("Помилка завантаження варіантів:", err);
-            // Повертаємо порожній масив у разі помилки, щоб не ламати фронтенд
-            return res.json([]); 
+            console.error("Помилка БД:", err);
+            return res.json([]);
         }
-        res.json(results);
+
+        if (results.length === 0) return res.json([]); // Товар не знайдено
+
+        // Визначаємо "головний" ID сім'ї: якщо це дитина, беремо ID її батька. Якщо батько - його власний ID.
+        const familyId = results[0].parent_id ? results[0].parent_id : mainId;
+
+        // Крок 2: Дістаємо всю сім'ю (батька і всіх дітей)
+        const sql = 'SELECT * FROM products WHERE id = ? OR parent_id = ? ORDER BY price ASC';
+        
+        db.query(sql, [familyId, familyId], (err, familyResults) => {
+            if (err) {
+                console.error("Помилка завантаження варіантів:", err);
+                return res.json([]);
+            }
+            res.json(familyResults);
+        });
     });
 });
 app.listen(3001, () => {
