@@ -97,7 +97,19 @@ app.get('/api/cart', (req, res) => {
     const sessionId = req.query.session_id; 
     if (!sessionId) return res.status(400).json({ error: 'Немає сесії' });
 
-    const sql = 'SELECT cart.id as cart_id, cart.quantity, products.* FROM cart JOIN products ON cart.product_id = products.id WHERE cart.session_id = ?';
+    // Магія тут: об'єднуємо кошик, варіанти і головні товари
+    const sql = `
+        SELECT 
+            cart.id as cart_id, 
+            cart.quantity, 
+            pv.price, 
+            CONCAT(p.title, ' (', pv.name_variant, ')') AS title, 
+            p.image_url 
+        FROM cart 
+        JOIN product_variants pv ON cart.product_id = pv.id 
+        JOIN products p ON pv.product_id = p.id 
+        WHERE cart.session_id = ?
+    `;
     db.query(sql, [sessionId], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
@@ -120,9 +132,14 @@ app.post('/api/checkout', (req, res) => {
     const { session_id, name, lastname, phone, comment, user_id } = req.body;
 
     const query = `
-        SELECT cart.product_id, cart.quantity, products.title, products.price 
+        SELECT 
+            cart.product_id as variant_id, 
+            cart.quantity, 
+            CONCAT(p.title, ' (', pv.name_variant, ')') as title, 
+            pv.price 
         FROM cart 
-        JOIN products ON cart.product_id = products.id 
+        JOIN product_variants pv ON cart.product_id = pv.id 
+        JOIN products p ON pv.product_id = p.id 
         WHERE cart.session_id = ?`;
 
     db.query(query, [session_id], (err, items) => {
@@ -350,6 +367,21 @@ app.get('/api/products/:id', (req, res) => {
         if (product.image_url && !galleryArray.includes(product.image_url)) galleryArray.unshift(product.image_url);
         product.gallery_images = galleryArray;
         res.json(product);
+    });
+});
+// ОНОВЛЕНИЙ МАРШРУТ: Отримання комплектацій з нової таблиці
+app.get('/api/products/:id/variants', (req, res) => {
+    const mainProductId = req.params.id;
+    
+    // Шукаємо всі варіанти, які належать до цього товару
+    const sql = 'SELECT id, name_variant, price, stock FROM product_variants WHERE product_id = ? ORDER BY price ASC';
+    
+    db.query(sql, [mainProductId], (err, results) => {
+        if (err) {
+            console.error("Помилка завантаження варіантів:", err);
+            return res.json([]); 
+        }
+        res.json(results);
     });
 });
 app.listen(3001, () => {
