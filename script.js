@@ -553,7 +553,13 @@ if (window.location.href.includes('product.html')) {
             document.getElementById('loading').innerHTML = 'Помилка: Невірний ID товару.';
             return;
         }
-
+        const descEl = document.getElementById('productDescription');
+            let originalDescription = ''; // Створюємо змінну
+            
+            if (descEl) {
+                descEl.innerHTML = product.description || 'Опис відсутній.';
+                originalDescription = descEl.innerHTML; // Запам'ятовуємо оригінал
+            }
         try {
             const response = await fetch(`https://avtozvuk-api.onrender.com/api/products/${productId}`);
             const product = await response.json();
@@ -689,7 +695,28 @@ if (window.location.href.includes('product.html')) {
 
                 const container = document.getElementById('variantsContainer');
                 if (!container) return; 
-                
+                btn.addEventListener('click', () => {
+                        if (btn.classList.contains('disabled')) return;
+
+                        document.querySelectorAll('.variant-card').forEach(c => c.classList.remove('active'));
+                        btn.classList.add('active'); 
+                        
+                        const priceElement = document.getElementById('productPrice');
+                        if (priceElement) priceElement.innerText = v.price;
+
+                        currentProductId = v.id; 
+                        
+                        // НОВИЙ КОД ДЛЯ ЗМІНИ ОПИСУ:
+                        const descElement = document.getElementById('productDescription');
+                        if (descElement) {
+                            // Якщо у варіанта є свій текст - ставимо його, якщо немає - повертаємо оригінальний
+                            if (v.description && v.description.trim() !== '') {
+                                descElement.innerHTML = v.description;
+                            } else {
+                                descElement.innerHTML = originalDescription;
+                            }
+                        }
+                    });
                 container.innerHTML = ''; 
 
                 variants.forEach((v, index) => {

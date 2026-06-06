@@ -374,7 +374,7 @@ app.get('/api/products/:id/variants', (req, res) => {
     const mainProductId = req.params.id;
     
     // Шукаємо всі варіанти, які належать до цього товару
-    const sql = 'SELECT id, name_variant, price, stock FROM product_variants WHERE product_id = ? ORDER BY price ASC';
+    const sql = 'SELECT id, name_variant, price, stock, description FROM product_variants WHERE product_id = ? ORDER BY price ASC';
     
     db.query(sql, [mainProductId], (err, results) => {
         if (err) {
