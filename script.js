@@ -686,6 +686,7 @@ if (window.location.href.includes('product.html')) {
         }
         
         // === ЗАВАНТАЖЕННЯ ВАРІАНТІВ (product_variants) ===
+        // === ЗАВАНТАЖЕННЯ ВАРІАНТІВ З ПІДТРИМКОЮ УНІКАЛЬНИХ СИЛОК ===
         async function loadProductVariants(id) {
             try {
                 const response = await fetch(`https://avtozvuk-api.onrender.com/api/products/${id}/variants`);
@@ -699,6 +700,12 @@ if (window.location.href.includes('product.html')) {
                 
                 container.innerHTML = ''; 
 
+                // 🔴 Читаємо параметр 'variant' з адреси сторінки
+                const urlParams = new URLSearchParams(window.location.search);
+                const variantFromUrl = urlParams.get('variant');
+                
+                let isClicked = false; // Запам'ятовуємо, чи ми вже щось вибрали
+
                 variants.forEach((v, index) => {
                     const btn = document.createElement('div');
                     btn.className = 'variant-card';
@@ -711,35 +718,52 @@ if (window.location.href.includes('product.html')) {
                     btn.addEventListener('click', () => {
                         if (btn.classList.contains('disabled')) return;
 
+                        // Змінюємо активну кнопку
                         document.querySelectorAll('.variant-card').forEach(c => c.classList.remove('active'));
                         btn.classList.add('active'); 
                         
+                        // Змінюємо ціну
                         const priceElement = document.getElementById('productPrice');
                         if (priceElement) priceElement.innerText = v.price;
 
                         currentProductId = v.id; 
                         
-                        // 🔴 ЛОГІКА ЗМІНИ ОПИСУ
+                        // Змінюємо опис
                         const descElement = document.getElementById('productDescription');
                         if (descElement) {
                             if (v.description && v.description.trim() !== '') {
-                                // Якщо у варіанта є свій опис - ставимо його
                                 descElement.innerHTML = v.description;
                             } else {
-                                // Якщо немає - повертаємо оригінальний опис товару
                                 descElement.innerHTML = originalDescription;
                             }
                         }
+
+                        // 🔴 МАГІЯ: Змінюємо посилання в браузері без перезавантаження сторінки!
+                        const newUrl = new URL(window.location);
+                        newUrl.searchParams.set('variant', v.id); // Додаємо або оновлюємо ?variant=...
+                        window.history.replaceState({}, '', newUrl);
                     });
                     
                     container.appendChild(btn);
 
-                    if (index === 0 && v.stock > 0) {
+                    // 🔴 ЛОГІКА АВТОМАТИЧНОГО ВИБОРУ ПРИ ЗАВАНТАЖЕННІ СТОРІНКИ
+                    if (variantFromUrl && v.id == variantFromUrl && v.stock > 0) {
+                        // 1. Якщо перейшли за прямим лінком на конкретний варіант
                         btn.click();
-                    } else if (v.stock > 0 && !document.querySelector('.variant-card.active')) {
-                        btn.click(); 
+                        isClicked = true;
+                    } else if (!variantFromUrl && !isClicked && v.stock > 0) {
+                        // 2. Якщо лінк звичайний (без варіанту) - вибираємо перший доступний
+                        btn.click();
+                        isClicked = true;
                     }
                 });
+
+                // Запобіжник: якщо за лінком передали варіант, якого вже немає в наявності,
+                // ми просто програмно клацаємо на будь-який інший доступний.
+                if (!isClicked && variants.length > 0) {
+                    const firstAvailable = container.querySelector('.variant-card:not(.disabled)');
+                    if (firstAvailable) firstAvailable.click();
+                }
 
             } catch (error) {
                 console.error("Помилка завантаження комплектацій:", error);
