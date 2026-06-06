@@ -548,18 +548,15 @@ if (window.location.href.includes('product.html')) {
 
         // Змінна для актуального ID товару
         let currentProductId = productId; 
+        
+        // 🔴 ОГОЛОШУЄМО ЗМІННУ ОПИСУ ТУТ, ЩОБ ЇЇ БАЧИЛИ ВСІ
+        let originalDescription = ''; 
 
         if (!productId || productId === 'null') {
             document.getElementById('loading').innerHTML = 'Помилка: Невірний ID товару.';
             return;
         }
-        const descEl = document.getElementById('productDescription');
-            let originalDescription = ''; // Створюємо змінну
-            
-            if (descEl) {
-                descEl.innerHTML = product.description || 'Опис відсутній.';
-                originalDescription = descEl.innerHTML; // Запам'ятовуємо оригінал
-            }
+
         try {
             const response = await fetch(`https://avtozvuk-api.onrender.com/api/products/${productId}`);
             const product = await response.json();
@@ -576,7 +573,11 @@ if (window.location.href.includes('product.html')) {
             if (priceEl) priceEl.innerText = product.price;
             
             const descEl = document.getElementById('productDescription');
-            if (descEl) descEl.innerHTML = product.description || 'Опис відсутній.';
+            if (descEl) {
+                descEl.innerHTML = product.description || 'Опис відсутній.';
+                // 🔴 ЗАПАМ'ЯТОВУЄМО ОРИГІНАЛЬНИЙ ОПИС
+                originalDescription = descEl.innerHTML; 
+            }
 
             // Карусель
             const images = product.gallery_images && product.gallery_images.length > 0 
@@ -684,7 +685,7 @@ if (window.location.href.includes('product.html')) {
             });
         }
         
-        // === НОВА ФУНКЦІЯ ЗАВАНТАЖЕННЯ ВАРІАНТІВ (product_variants) ===
+        // === ЗАВАНТАЖЕННЯ ВАРІАНТІВ (product_variants) ===
         async function loadProductVariants(id) {
             try {
                 const response = await fetch(`https://avtozvuk-api.onrender.com/api/products/${id}/variants`);
@@ -695,28 +696,7 @@ if (window.location.href.includes('product.html')) {
 
                 const container = document.getElementById('variantsContainer');
                 if (!container) return; 
-                btn.addEventListener('click', () => {
-                        if (btn.classList.contains('disabled')) return;
-
-                        document.querySelectorAll('.variant-card').forEach(c => c.classList.remove('active'));
-                        btn.classList.add('active'); 
-                        
-                        const priceElement = document.getElementById('productPrice');
-                        if (priceElement) priceElement.innerText = v.price;
-
-                        currentProductId = v.id; 
-                        
-                        // НОВИЙ КОД ДЛЯ ЗМІНИ ОПИСУ:
-                        const descElement = document.getElementById('productDescription');
-                        if (descElement) {
-                            // Якщо у варіанта є свій текст - ставимо його, якщо немає - повертаємо оригінальний
-                            if (v.description && v.description.trim() !== '') {
-                                descElement.innerHTML = v.description;
-                            } else {
-                                descElement.innerHTML = originalDescription;
-                            }
-                        }
-                    });
+                
                 container.innerHTML = ''; 
 
                 variants.forEach((v, index) => {
@@ -724,34 +704,40 @@ if (window.location.href.includes('product.html')) {
                     btn.className = 'variant-card';
                     btn.innerText = v.name_variant;
                     
-                    // Перевірка наявності: якщо stock 0, блокуємо кнопку
                     if (v.stock <= 0) {
                         btn.classList.add('disabled');
                     }
                     
                     btn.addEventListener('click', () => {
-                        // Якщо товару немає, клік не працює
                         if (btn.classList.contains('disabled')) return;
 
-                        // Знімаємо виділення з усіх і додаємо поточній
                         document.querySelectorAll('.variant-card').forEach(c => c.classList.remove('active'));
                         btn.classList.add('active'); 
                         
-                        // Оновлюємо ціну на сторінці
                         const priceElement = document.getElementById('productPrice');
                         if (priceElement) priceElement.innerText = v.price;
 
-                        // Зберігаємо ID варіанту для додавання в кошик
                         currentProductId = v.id; 
+                        
+                        // 🔴 ЛОГІКА ЗМІНИ ОПИСУ
+                        const descElement = document.getElementById('productDescription');
+                        if (descElement) {
+                            if (v.description && v.description.trim() !== '') {
+                                // Якщо у варіанта є свій опис - ставимо його
+                                descElement.innerHTML = v.description;
+                            } else {
+                                // Якщо немає - повертаємо оригінальний опис товару
+                                descElement.innerHTML = originalDescription;
+                            }
+                        }
                     });
                     
                     container.appendChild(btn);
 
-                    // Автоматично клікаємо на ПЕРШИЙ ДОСТУПНИЙ варіант при завантаженні
                     if (index === 0 && v.stock > 0) {
                         btn.click();
                     } else if (v.stock > 0 && !document.querySelector('.variant-card.active')) {
-                        btn.click(); // Шукаємо наступний доступний, якщо перший sold out
+                        btn.click(); 
                     }
                 });
 
